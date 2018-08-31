@@ -1,0 +1,8 @@
+*.pyc
+.idea
+*.ipynb
+.coverage
+*pyw
+.env
+__pycache__/
+.cache
