@@ -2,11 +2,15 @@ import hvac
 import requests
 from hashids import Hashids
 
+hash_ids = Hashids(min_length=32, salt='GJgCh--VgsonCWacO5-MxAuMS9hcPeGGxj5tGsT40FM')
+
 
 def generate_record_uid(scheme_account_id):
-    hash_ids = Hashids(min_length=32, salt='GJgCh--VgsonCWacO5-MxAuMS9hcPeGGxj5tGsT40FM')
-
     return hash_ids.encode(scheme_account_id)
+
+
+def decode_record_uid(record_uid):
+    return hash_ids.decode(record_uid)[0]
 
 
 class Configuration:
@@ -19,7 +23,6 @@ class Configuration:
     - merchant_url: url of merchant endpoint.
     - callback_url: Endpoint url for merchant to call for response (Async processes only)
     - integration_service: sync or async process.
-    - security_service: type of security to use e.g RSA.
     - security_credentials: credentials required for dealing with security e.g public/private keys.
     - retry_limit: number of times to retry on failed request.
     - log_level: level of logging to record e.g DEBUG for all, WARNING for warning logs and above.
@@ -69,6 +72,7 @@ class Configuration:
     )
 
     ERROR_MESSAGE = "There is an error with the configuration or it was not possible to retrieve."
+    SECURITY_ERROR_MESSAGE = "Error retrieving security credentials for this request."
 
     def __init__(self, scheme_slug, handler_type, vault_url, vault_token, config_service_url):
         """
@@ -98,22 +102,25 @@ class Configuration:
         return resp.json()
 
     def _process_config_data(self):
-        self.merchant_url = self.data['merchant_url']
-        self.integration_service = self.INTEGRATION_CHOICES[self.data['integration_service']][1].upper()
-        self.security_service = self.SECURITY_TYPE_CHOICES[self.data['security_service']]
-        self.retry_limit = self.data['retry_limit']
-        self.log_level = self.LOG_LEVEL_CHOICES[self.data['log_level']][1].upper()
-        self.callback_url = self.data['callback_url']
-        self.country = self.data['country']
+        try:
+            self.merchant_url = self.data['merchant_url']
+            self.integration_service = self.INTEGRATION_CHOICES[self.data['integration_service']][1].upper()
+            self.retry_limit = self.data['retry_limit']
+            self.log_level = self.LOG_LEVEL_CHOICES[self.data['log_level']][1].upper()
+            self.callback_url = self.data['callback_url']
+            self.country = self.data['country']
 
-        self.security_credentials = self.data['security_credentials']
-        inbound_data = self.data['security_credentials']['inbound']['credentials']
-        outbound_data = self.data['security_credentials']['outbound']['credentials']
+            self.security_credentials = self.data['security_credentials']
+            inbound_data = self.security_credentials['inbound']['credentials']
+            outbound_data = self.security_credentials['outbound']['credentials']
+        except KeyError as e:
+            raise RuntimeError(self.ERROR_MESSAGE) from e
+
         try:
             self.security_credentials['inbound']['credentials'] = self.get_security_credentials(inbound_data)
             self.security_credentials['outbound']['credentials'] = self.get_security_credentials(outbound_data)
-        except TypeError as e:
-            raise RuntimeError(self.ERROR_MESSAGE) from e
+        except (TypeError, KeyError) as e:
+            raise RuntimeError(self.SECURITY_ERROR_MESSAGE) from e
 
     def get_security_credentials(self, key_items):
         """
@@ -124,8 +131,12 @@ class Configuration:
         client = hvac.Client(token=self.vault_token, url=self.vault_url)
         try:
             for key_item in key_items:
-                value = client.read('secret/data/{}'.format(key_item['storage_key']))['data']['data']
-                key_item.update(value)
+                stored_dict = client.read(f'secret/data/{key_item["storage_key"]}')['data']['data']
+
+                # Stores the value mapped to the 'value' key of the stored data.
+                # If this doesn't exist, i.e for compound keys, the full mapping is stored as the value.
+                value = stored_dict.get('value')
+                key_item.update(value=value or stored_dict)
         except TypeError as e:
             raise TypeError('Could not locate security credentials in vault.') from e
 
