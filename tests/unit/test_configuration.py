@@ -2,7 +2,7 @@ from unittest import TestCase, mock
 
 import requests
 
-from app.configuration import Configuration, hash_ids, generate_record_uid, decode_record_uid
+from soteria.configuration import Configuration, hash_ids, generate_record_uid, decode_record_uid
 from tests.unit import fixtures
 
 
@@ -17,8 +17,8 @@ class TestConfiguration(TestCase):
         decoded_uid = decode_record_uid(record_uid)
         self.assertEqual(decoded_uid, 531)
 
-    @mock.patch('app.configuration.hvac.Client')
-    @mock.patch('app.configuration.requests.get')
+    @mock.patch('soteria.configuration.hvac.Client')
+    @mock.patch('soteria.configuration.requests.get')
     def test_configuration_init(self, mock_get, mock_vault):
         mock_get.return_value = mock.MagicMock()
         mock_get.return_value.status_code = 200
@@ -31,8 +31,8 @@ class TestConfiguration(TestCase):
         self.assertEqual(config.handler_type[0], fixtures.MOCK_CONFIG_JSON['handler_type'])
         self.assertEqual(config.security_credentials, fixtures.MOCK_CONFIG_JSON['security_credentials'])
 
-    @mock.patch('app.configuration.hvac.Client')
-    @mock.patch('app.configuration.requests.get')
+    @mock.patch('soteria.configuration.hvac.Client')
+    @mock.patch('soteria.configuration.requests.get')
     def test_configuration_init_requests_exception_from_config_service(self, mock_get, mock_vault):
         mock_get.return_value = mock.MagicMock()
         mock_get.return_value.status_code = 404
@@ -45,8 +45,8 @@ class TestConfiguration(TestCase):
             Configuration(*fixtures.CONFIG_CLASS_ARGS)
         self.assertEqual(str(e.exception), Configuration.ERROR_MESSAGE)
 
-    @mock.patch('app.configuration.hvac.Client')
-    @mock.patch('app.configuration.requests.get')
+    @mock.patch('soteria.configuration.hvac.Client')
+    @mock.patch('soteria.configuration.requests.get')
     def test_configuration_init_bad_config_from_service(self, mock_get, mock_vault):
         mock_get.return_value = mock.MagicMock()
         mock_get.return_value.status_code = 200
@@ -58,8 +58,8 @@ class TestConfiguration(TestCase):
             Configuration(*fixtures.CONFIG_CLASS_ARGS)
         self.assertEqual(str(e.exception), Configuration.ERROR_MESSAGE)
 
-    @mock.patch('app.configuration.hvac.Client')
-    @mock.patch('app.configuration.requests.get')
+    @mock.patch('soteria.configuration.hvac.Client')
+    @mock.patch('soteria.configuration.requests.get')
     def test_configuration_init_vault_fail(self, mock_get, mock_vault):
         mock_get.return_value = mock.MagicMock()
         mock_get.return_value.status_code = 200
@@ -71,8 +71,8 @@ class TestConfiguration(TestCase):
             Configuration(*fixtures.CONFIG_CLASS_ARGS)
         self.assertEqual(str(e.exception), Configuration.SECURITY_ERROR_MESSAGE)
 
-    @mock.patch('app.configuration.hvac.Client')
-    @mock.patch('app.configuration.requests.get')
+    @mock.patch('soteria.configuration.hvac.Client')
+    @mock.patch('soteria.configuration.requests.get')
     def test_configuration_init_keys_not_saved_correctly(self, mock_get, mock_vault):
         mock_get.return_value = mock.MagicMock()
         mock_get.return_value.status_code = 200

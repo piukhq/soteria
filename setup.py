@@ -19,7 +19,7 @@ setuptools.setup(
     packages=[
         'soteria',
     ],
-    package_dir={'soteria': 'app'},
+    package_dir={'soteria': 'soteria'},
     package_data={
         'soteria': ['*.json']
     },

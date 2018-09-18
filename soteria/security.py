@@ -1,8 +1,8 @@
 import json
 from importlib import import_module
 
-from app.configuration import Configuration
-from app import registry
+from soteria.configuration import Configuration
+from soteria import registry
 
 
 def get_security_agent(security_type, *args, **kwargs):
@@ -16,7 +16,7 @@ def get_security_agent(security_type, *args, **kwargs):
     """
     try:
         module_name, class_name = registry.TYPES[security_type].split('.')
-        security_module = import_module('.' + module_name, package='app')
+        security_module = import_module('.' + module_name, package='soteria')
         agent_class = getattr(security_module, class_name)
         agent_instance = agent_class(*args, **kwargs)
 

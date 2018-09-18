@@ -1,7 +1,7 @@
 import json
 import time
 
-from app.configuration import Configuration
+from soteria.configuration import Configuration
 
 TEST_REQUEST_DATA = {'points': '10'}
 

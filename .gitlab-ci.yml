@@ -5,7 +5,7 @@ tests:
   stage: tests
   script:
     - pip3 install -r requirements.txt
-    - pytest tests/unit --cov=app
+    - pytest tests/unit --cov=soteria
 
 complexity:
   stage: tests

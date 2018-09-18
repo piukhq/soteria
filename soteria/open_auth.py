@@ -1,6 +1,6 @@
 import json
 
-from app.base import BaseSecurity
+from soteria.base import BaseSecurity
 
 
 class OpenAuth(BaseSecurity):

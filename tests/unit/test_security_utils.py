@@ -1,8 +1,8 @@
 from unittest import TestCase, mock
 
-from app.configuration import Configuration
-from app import open_auth
-from app.security import get_security_agent, authorise
+from soteria.configuration import Configuration
+from soteria import open_auth
+from soteria.security import get_security_agent, authorise
 from tests.unit import fixtures
 
 
@@ -12,7 +12,7 @@ class TestSecurityUtils(TestCase):
 
         self.assertIsInstance(security_agent, open_auth.OpenAuth)
 
-    @mock.patch('app.security.getattr')
+    @mock.patch('soteria.security.getattr')
     def test_get_security_agent_not_found(self, mock_getattr):
         mock_getattr.side_effect = AttributeError('Attribute not found')
 
@@ -20,8 +20,8 @@ class TestSecurityUtils(TestCase):
             get_security_agent(Configuration.OPEN_AUTH_SECURITY)
         self.assertEqual(str(e.exception), 'Could not find security class: OpenAuth.')
 
-    @mock.patch('app.configuration.hvac.Client')
-    @mock.patch('app.configuration.requests.get')
+    @mock.patch('soteria.configuration.hvac.Client')
+    @mock.patch('soteria.configuration.requests.get')
     def test_authorise(self, mock_get, mock_vault):
         mock_config = fixtures.MOCK_CONFIG_JSON
         mock_config['security_credentials'] = {

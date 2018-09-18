@@ -4,11 +4,11 @@ from unittest import TestCase, mock
 
 import requests
 
-from app.configuration import Configuration
-from app.base import BaseSecurity
-from app.oauth import OAuth
-from app.open_auth import OpenAuth
-from app.rsa import RSA
+from soteria.configuration import Configuration
+from soteria.base import BaseSecurity
+from soteria.oauth import OAuth
+from soteria.open_auth import OpenAuth
+from soteria.rsa import RSA
 from tests.unit import fixtures
 
 
@@ -67,7 +67,7 @@ class TestOAuth(TestCase):
     def setUp(self):
         self.oauth = OAuth(credentials=fixtures.TEST_CREDENTIALS)
 
-    @mock.patch('app.oauth.requests.post')
+    @mock.patch('soteria.oauth.requests.post')
     def test_oauth_encode(self, mock_post):
         test_oauth_access_token = 'test-oauth-access-token'
         mock_post.return_value = mock.MagicMock()
@@ -78,7 +78,7 @@ class TestOAuth(TestCase):
         self.assertTrue(auth_header.endswith(test_oauth_access_token))
         self.assertEqual(encoded_request['json'], fixtures.TEST_REQUEST_DATA)
 
-    @mock.patch('app.oauth.requests.post')
+    @mock.patch('soteria.oauth.requests.post')
     def test_oauth_encode_failed_connection(self, mock_post):
         mock_post.side_effect = requests.RequestException('test requests exception')
 
@@ -86,7 +86,7 @@ class TestOAuth(TestCase):
             self.oauth.encode(json.dumps(fixtures.TEST_REQUEST_DATA))
         self.assertEqual(str(e.exception), BaseSecurity.SERVICE_CONNECTION_ERROR)
 
-    @mock.patch('app.oauth.requests.post')
+    @mock.patch('soteria.oauth.requests.post')
     def test_oauth_encode_bad_credentials(self, mock_post):
         bad_credentials = {
             'outbound': {

@@ -5,8 +5,8 @@ from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA as CRYPTO_RSA
 from Crypto.Signature import pkcs1_15
 
-from app.configuration import Configuration
-from app.base import BaseSecurity
+from soteria.configuration import Configuration
+from soteria.base import BaseSecurity
 
 
 class RSA(BaseSecurity):

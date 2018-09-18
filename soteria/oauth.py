@@ -2,8 +2,8 @@ import json
 
 import requests
 
-from app.configuration import Configuration
-from app.base import BaseSecurity
+from soteria.configuration import Configuration
+from soteria.base import BaseSecurity
 
 
 class OAuth(BaseSecurity):
