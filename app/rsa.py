@@ -6,7 +6,7 @@ from Crypto.PublicKey import RSA as CRYPTO_RSA
 from Crypto.Signature import pkcs1_15
 
 from app.configuration import Configuration
-from app.security.base import BaseSecurity
+from app.base import BaseSecurity
 
 
 class RSA(BaseSecurity):

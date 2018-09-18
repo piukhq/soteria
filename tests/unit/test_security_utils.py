@@ -1,8 +1,8 @@
 from unittest import TestCase, mock
 
 from app.configuration import Configuration
-from app.security import open_auth
-from app.security.utils import get_security_agent, authorise
+from app import open_auth
+from app.security import get_security_agent, authorise
 from tests.unit import fixtures
 
 
@@ -12,7 +12,7 @@ class TestSecurityUtils(TestCase):
 
         self.assertIsInstance(security_agent, open_auth.OpenAuth)
 
-    @mock.patch('app.security.utils.getattr')
+    @mock.patch('app.security.getattr')
     def test_get_security_agent_not_found(self, mock_getattr):
         mock_getattr.side_effect = AttributeError('Attribute not found')
 

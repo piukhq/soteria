@@ -1,6 +1,6 @@
 import json
 
-from app.security.base import BaseSecurity
+from app.base import BaseSecurity
 
 
 class OpenAuth(BaseSecurity):

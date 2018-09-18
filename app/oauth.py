@@ -3,7 +3,7 @@ import json
 import requests
 
 from app.configuration import Configuration
-from app.security.base import BaseSecurity
+from app.base import BaseSecurity
 
 
 class OAuth(BaseSecurity):
