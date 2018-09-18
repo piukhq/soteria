@@ -29,7 +29,7 @@ setuptools.setup(
         'chardet>=3.0.4',
         'hashids>=1.2.0',
         'hvac>=0.6.4',
-        'idna>=2.7,',
+        'idna>=2.7',
         'pycryptodome>=3.6.6',
         'requests>=2.19.1',
         'urllib3>=1.23',
