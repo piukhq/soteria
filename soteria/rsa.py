@@ -6,7 +6,6 @@ from Crypto.PublicKey import RSA as CRYPTO_RSA
 from Crypto.Signature import pkcs1_15
 
 from soteria.base import BaseSecurity
-from soteria.configuration import Configuration
 from soteria.security import SecurityException
 
 

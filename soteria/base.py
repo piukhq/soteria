@@ -3,6 +3,7 @@ import time
 from soteria.configuration import ConfigurationException, Configuration
 from soteria.security import SecurityException
 
+
 class BaseSecurity:
     time_limit = 120
     VALIDATION_ERROR_MESSAGE = 'Validation of the request has failed.'
