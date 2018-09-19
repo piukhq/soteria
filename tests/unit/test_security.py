@@ -1,6 +1,7 @@
 from unittest import TestCase, mock
 
 from soteria import open_auth
+from soteria.base import BaseSecurity
 from soteria.configuration import Configuration
 from soteria.security import get_security_agent, authorise, SecurityException
 from tests.unit import fixtures
@@ -41,12 +42,46 @@ class TestSecurity(TestCase):
         mock_vault.read.return_value = fixtures.MOCK_VAULT_RESPONSE
 
         @authorise(Configuration.JOIN_HANDLER, fixtures.MockRequest, 'vault_url', 'vault_token', 'config_url')
-        def accept_request(scheme_slug, data, config):
-            return data, scheme_slug, config
+        def accept_request(scheme_slug, data, config, exception):
+            return data, scheme_slug, config, exception
 
-        data, scheme_slug, config = accept_request(scheme_slug='test-scheme-slug')
+        data, scheme_slug, config, exception = accept_request(scheme_slug='test-scheme-slug')
 
         self.assertEqual(data, {"message": "success"})
         self.assertEqual(scheme_slug, 'test-scheme-slug')
+        self.assertEqual(exception, None)
+        self.assertIsInstance(config, Configuration)
+        self.assertEqual(config.handler_type[0], Configuration.JOIN_HANDLER)
+
+    @mock.patch('soteria.configuration.hvac.Client')
+    @mock.patch('soteria.configuration.requests.get')
+    def test_authorise_fail(self, mock_get, mock_vault):
+        mock_config = fixtures.MOCK_CONFIG_JSON
+        mock_config['security_credentials'] = {
+            "inbound": {
+                "service": Configuration.RSA_SECURITY,
+                "credentials": []
+            },
+            "outbound": {
+                "service": Configuration.RSA_SECURITY,
+                "credentials": []
+            }
+        }
+        mock_get.return_value = mock.MagicMock()
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = mock_config
+        mock_vault.return_value = mock.MagicMock()
+        mock_vault.read.return_value = fixtures.MOCK_VAULT_RESPONSE
+
+        @authorise(Configuration.JOIN_HANDLER, fixtures.MockRequest, 'vault_url', 'vault_token', 'config_url')
+        def accept_request(scheme_slug, data, config, exception):
+            return data, scheme_slug, config, exception
+
+        data, scheme_slug, config, exception = accept_request(scheme_slug='test-scheme-slug')
+
+        self.assertEqual(data, None)
+        self.assertEqual(scheme_slug, 'test-scheme-slug')
+        self.assertEqual(type(exception), SecurityException)
+        self.assertEqual(exception.args[0], BaseSecurity.VALIDATION_ERROR_MESSAGE)
         self.assertIsInstance(config, Configuration)
         self.assertEqual(config.handler_type[0], Configuration.JOIN_HANDLER)
