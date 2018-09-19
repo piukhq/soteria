@@ -5,6 +5,10 @@ from soteria.configuration import Configuration
 from soteria import registry
 
 
+class SecurityException(Exception):
+    pass
+
+
 def get_security_agent(security_type, *args, **kwargs):
     """
     Retrieves an instance of a security agent. Security agents must have a file containing a class with equal names,
@@ -22,7 +26,7 @@ def get_security_agent(security_type, *args, **kwargs):
 
     except (AttributeError, ImportError) as e:
         error_message = f'Could not find security class: {class_name}.'
-        raise AttributeError(error_message)
+        raise SecurityException(error_message)
 
     return agent_instance
 

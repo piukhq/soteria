@@ -1,5 +1,7 @@
 import time
 
+from soteria.configuration import ConfigurationException, Configuration
+from soteria.security import SecurityException
 
 class BaseSecurity:
     time_limit = 120
@@ -28,7 +30,7 @@ class BaseSecurity:
     def _validate_timestamp(self, timestamp):
         current_time = time.time()
         if (current_time - int(timestamp)) > self.time_limit:
-            raise ValueError(self.VALIDATION_ERROR_MESSAGE)
+            raise SecurityException(self.VALIDATION_ERROR_MESSAGE)
 
     @staticmethod
     def _add_timestamp(json_data):
@@ -42,4 +44,4 @@ class BaseSecurity:
         for item in credentials_list:
             if item['credential_type'] == key_type:
                 return item['value']
-        raise KeyError(f'{key_type} not in credentials')
+        raise ConfigurationException(Configuration.SECURITY_ERROR_MESSAGE)

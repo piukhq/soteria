@@ -2,7 +2,8 @@ from unittest import TestCase, mock
 
 import requests
 
-from soteria.configuration import Configuration, hash_ids, generate_record_uid, decode_record_uid
+from soteria.configuration import Configuration, ConfigurationException, hash_ids, generate_record_uid, \
+    decode_record_uid
 from tests.unit import fixtures
 
 
@@ -41,7 +42,7 @@ class TestConfiguration(TestCase):
         mock_vault.return_value = mock.MagicMock()
         mock_vault.read.return_value = fixtures.MOCK_VAULT_RESPONSE
 
-        with self.assertRaises(RuntimeError) as e:
+        with self.assertRaises(ConfigurationException) as e:
             Configuration(*fixtures.CONFIG_CLASS_ARGS)
         self.assertEqual(str(e.exception), Configuration.ERROR_MESSAGE)
 
@@ -54,7 +55,7 @@ class TestConfiguration(TestCase):
         mock_vault.return_value = mock.MagicMock()
         mock_vault.read.return_value = fixtures.MOCK_VAULT_RESPONSE
 
-        with self.assertRaises(RuntimeError) as e:
+        with self.assertRaises(ConfigurationException) as e:
             Configuration(*fixtures.CONFIG_CLASS_ARGS)
         self.assertEqual(str(e.exception), Configuration.ERROR_MESSAGE)
 
@@ -67,7 +68,7 @@ class TestConfiguration(TestCase):
         mock_vault.return_value = mock.MagicMock()
         mock_vault.return_value.read.return_value = {}
 
-        with self.assertRaises(RuntimeError) as e:
+        with self.assertRaises(ConfigurationException) as e:
             Configuration(*fixtures.CONFIG_CLASS_ARGS)
         self.assertEqual(str(e.exception), Configuration.SECURITY_ERROR_MESSAGE)
 
@@ -80,6 +81,6 @@ class TestConfiguration(TestCase):
         mock_vault.return_value = mock.MagicMock()
         mock_vault.return_value.read.return_value = ''
 
-        with self.assertRaises(RuntimeError) as e:
+        with self.assertRaises(ConfigurationException) as e:
             Configuration(*fixtures.CONFIG_CLASS_ARGS)
         self.assertEqual(str(e.exception), Configuration.SECURITY_ERROR_MESSAGE)

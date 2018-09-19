@@ -5,8 +5,9 @@ from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA as CRYPTO_RSA
 from Crypto.Signature import pkcs1_15
 
-from soteria.configuration import Configuration
 from soteria.base import BaseSecurity
+from soteria.configuration import Configuration
+from soteria.security import SecurityException
 
 
 class RSA(BaseSecurity):
@@ -50,21 +51,17 @@ class RSA(BaseSecurity):
             auth_header = headers['Authorization']
             timestamp = headers['X-REQ-TIMESTAMP']
         except KeyError as e:
-            raise ValueError(self.VALIDATION_ERROR_MESSAGE) from e
+            raise SecurityException(self.VALIDATION_ERROR_MESSAGE) from e
 
         prefix, signature = auth_header.split(' ')
 
         if prefix.lower() != 'signature':
-            raise ValueError(self.VALIDATION_ERROR_MESSAGE)
+            raise SecurityException(self.VALIDATION_ERROR_MESSAGE)
 
         self._validate_timestamp(timestamp)
 
         json_data_with_timestamp = '{}{}'.format(json_data, timestamp)
-        try:
-            key = CRYPTO_RSA.importKey(self._get_key('merchant_public_key',
-                                                     self.credentials['inbound']['credentials']))
-        except KeyError as e:
-            raise KeyError(Configuration.SECURITY_ERROR_MESSAGE) from e
+        key = CRYPTO_RSA.importKey(self._get_key('merchant_public_key', self.credentials['inbound']['credentials']))
 
         digest = SHA256.new(json_data_with_timestamp.encode('utf8'))
         signer = pkcs1_15.new(key)
@@ -73,6 +70,6 @@ class RSA(BaseSecurity):
         try:
             signer.verify(digest, decoded_sig)
         except ValueError as e:
-            raise ValueError(self.VALIDATION_ERROR_MESSAGE) from e
+            raise SecurityException(self.VALIDATION_ERROR_MESSAGE) from e
 
         return json_data

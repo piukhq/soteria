@@ -5,6 +5,10 @@ from hashids import Hashids
 hash_ids = Hashids(min_length=32, salt='GJgCh--VgsonCWacO5-MxAuMS9hcPeGGxj5tGsT40FM')
 
 
+class ConfigurationException(Exception):
+    pass
+
+
 def generate_record_uid(scheme_account_id):
     return hash_ids.encode(scheme_account_id)
 
@@ -97,7 +101,7 @@ class Configuration:
             resp = requests.get(config_service_url + '/config_service/configuration', params=params)
             resp.raise_for_status()
         except (requests.exceptions.RequestException, requests.exceptions.HTTPError) as e:
-            raise RuntimeError(self.ERROR_MESSAGE) from e
+            raise ConfigurationException(self.ERROR_MESSAGE) from e
 
         return resp.json()
 
@@ -114,13 +118,13 @@ class Configuration:
             inbound_data = self.security_credentials['inbound']['credentials']
             outbound_data = self.security_credentials['outbound']['credentials']
         except KeyError as e:
-            raise RuntimeError(self.ERROR_MESSAGE) from e
+            raise ConfigurationException(self.ERROR_MESSAGE) from e
 
         try:
             self.security_credentials['inbound']['credentials'] = self.get_security_credentials(inbound_data)
             self.security_credentials['outbound']['credentials'] = self.get_security_credentials(outbound_data)
         except (TypeError, KeyError) as e:
-            raise RuntimeError(self.SECURITY_ERROR_MESSAGE) from e
+            raise ConfigurationException(self.SECURITY_ERROR_MESSAGE) from e
 
     def get_security_credentials(self, key_items):
         """
@@ -138,6 +142,6 @@ class Configuration:
                 value = stored_dict.get('value')
                 key_item.update(value=value or stored_dict)
         except TypeError as e:
-            raise TypeError('Could not locate security credentials in vault.') from e
+            raise ConfigurationException(self.SECURITY_ERROR_MESSAGE) from e
 
         return key_items

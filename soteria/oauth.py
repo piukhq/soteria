@@ -2,8 +2,9 @@ import json
 
 import requests
 
-from soteria.configuration import Configuration
 from soteria.base import BaseSecurity
+from soteria.configuration import Configuration
+from soteria.security import SecurityException
 
 
 class OAuth(BaseSecurity):
@@ -22,8 +23,8 @@ class OAuth(BaseSecurity):
                 }
             }
         except requests.RequestException as e:
-            raise requests.RequestException(self.SERVICE_CONNECTION_ERROR) from e
+            raise SecurityException(self.SERVICE_CONNECTION_ERROR) from e
         except (KeyError, IndexError) as e:
-            raise RuntimeError(Configuration.SECURITY_ERROR_MESSAGE) from e
+            raise SecurityException(Configuration.SECURITY_ERROR_MESSAGE) from e
 
         return request_data
