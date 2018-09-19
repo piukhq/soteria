@@ -1,7 +1,7 @@
 import json
 from importlib import import_module
 
-from soteria.configuration import Configuration, ConfigurationException
+from soteria.configuration import Configuration
 from soteria import registry
 
 
@@ -45,18 +45,11 @@ def authorise(handler_type, request, vault_url, vault_token, config_service_url)
     """
     def decorator(fn):
         def wrapper(*args, **kwargs):
-            decoded_data = None
-            config = None
-            exception = None
-            try:
-                config = Configuration(kwargs['scheme_slug'], handler_type, vault_url, vault_token, config_service_url)
-                security_agent = get_security_agent(config.security_credentials['inbound']['service'],
+            config = Configuration(kwargs['scheme_slug'], handler_type, vault_url, vault_token, config_service_url)
+            security_agent = get_security_agent(config.security_credentials['inbound']['service'],
                                                 config.security_credentials)
-                decoded_data = json.loads(security_agent.decode(request.headers, request.get_data().decode('utf8')))
-            except (SecurityException, ConfigurationException) as e:
-                exception = e
+            decoded_data = json.loads(security_agent.decode(request.headers, request.get_data().decode('utf8')))
 
-            # return exception rather than raise it so flask can error handle correctly
-            return fn(data=decoded_data, config=config, exception=exception, *args, **kwargs)
+            return fn(data=decoded_data, config=config, *args, **kwargs)
         return wrapper
     return decorator
