@@ -30,7 +30,10 @@ class BaseSecurity:
 
     def _validate_timestamp(self, timestamp):
         current_time = time.time()
-        if (current_time - int(timestamp)) > self.time_limit:
+        try:
+            if (current_time - int(timestamp)) > self.time_limit:
+                raise SecurityException(self.VALIDATION_ERROR_MESSAGE)
+        except ValueError:
             raise SecurityException(self.VALIDATION_ERROR_MESSAGE)
 
     @staticmethod
