@@ -49,10 +49,9 @@ class RSA(BaseSecurity):
         try:
             auth_header = headers['Authorization']
             timestamp = headers['X-REQ-TIMESTAMP']
-        except KeyError as e:
+            prefix, signature = auth_header.split(' ')
+        except (KeyError, ValueError) as e:
             raise SecurityException(self.VALIDATION_ERROR_MESSAGE) from e
-
-        prefix, signature = auth_header.split(' ')
 
         if prefix.lower() != 'signature':
             raise SecurityException(self.VALIDATION_ERROR_MESSAGE)

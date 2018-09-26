@@ -186,3 +186,13 @@ class TestRSA(TestCase):
         with self.assertRaises(SecurityException) as e:
             self.rsa.decode(headers, json.dumps(fixtures.TEST_REQUEST_DATA))
         self.assertEqual(str(e.exception), BaseSecurity.VALIDATION_ERROR_MESSAGE)
+
+    def test_rsa_decode_invalid_authorization(self):
+        headers = {
+            'X-REQ-TIMESTAMP': int(time.time()),
+            'Authorization': 'abc'
+        }
+
+        with self.assertRaises(SecurityException) as e:
+            self.rsa.decode(headers, json.dumps(fixtures.TEST_REQUEST_DATA))
+        self.assertEqual(str(e.exception), BaseSecurity.VALIDATION_ERROR_MESSAGE)
