@@ -78,7 +78,7 @@ class Configuration:
     ERROR_MESSAGE = "There is an error with the configuration or it was not possible to retrieve."
     SECURITY_ERROR_MESSAGE = "Error retrieving security credentials for this request."
 
-    def __init__(self, scheme_slug, handler_type, vault_url, vault_token, config_service_url):
+    def __init__(self, scheme_slug, handler_type, vault_url, vault_token, config_service_base_url):
         """
         :param scheme_slug: merchant identifier.
         :param handler_type: Int. A choice from Configuration.HANDLER_TYPE_CHOICES.
@@ -88,17 +88,17 @@ class Configuration:
         self.vault_url = vault_url
         self.vault_token = vault_token
 
-        self.data = self._get_config_data(config_service_url)
+        self.data = self._get_config_data(config_service_base_url)
         self._process_config_data()
 
-    def _get_config_data(self, config_service_url):
+    def _get_config_data(self, config_service_base_url):
         params = {
             'merchant_id': self.scheme_slug,
             'handler_type': self.handler_type[0]
         }
 
         try:
-            resp = requests.get(config_service_url + '/config_service/configuration', params=params)
+            resp = requests.get(config_service_base_url + '/config_service/configuration', params=params)
             resp.raise_for_status()
         except (requests.exceptions.RequestException, requests.exceptions.HTTPError) as e:
             raise ConfigurationException(self.ERROR_MESSAGE) from e

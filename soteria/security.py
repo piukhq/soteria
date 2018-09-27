@@ -31,7 +31,7 @@ def get_security_agent(security_type, *args, **kwargs):
     return agent_instance
 
 
-def authorise(handler_type, request, vault_url, vault_token, config_service_url):
+def authorise(handler_type, request, vault_url, vault_token, config_service_base_url):
     """
     Decorator function for validation of requests from merchant APIs. Should be used on all callback views.
     Requires scheme slug and handler type to retrieve configuration details on which security type to use.
@@ -40,12 +40,12 @@ def authorise(handler_type, request, vault_url, vault_token, config_service_url)
     :param request: Request object. Request to authorize
     :param vault_url: Str. url of vault
     :param vault_token: Str. token to connect to vault
-    :param config_service_url: Str. Url to configuration service
+    :param config_service_base_url: Str. Url to configuration service
     :return: decorated function
     """
     def decorator(fn):
         def wrapper(*args, **kwargs):
-            config = Configuration(kwargs['scheme_slug'], int(handler_type), vault_url, vault_token, config_service_url)
+            config = Configuration(kwargs['scheme_slug'], int(handler_type), vault_url, vault_token, config_service_base_url)
             security_agent = get_security_agent(config.security_credentials['inbound']['service'],
                                                 config.security_credentials)
             decoded_data = json.loads(security_agent.decode(request.headers, request.get_data().decode('utf8')))
