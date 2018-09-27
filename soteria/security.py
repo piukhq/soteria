@@ -45,7 +45,7 @@ def authorise(handler_type, request, vault_url, vault_token, config_service_url)
     """
     def decorator(fn):
         def wrapper(*args, **kwargs):
-            config = Configuration(kwargs['scheme_slug'], handler_type, vault_url, vault_token, config_service_url)
+            config = Configuration(kwargs['scheme_slug'], int(handler_type), vault_url, vault_token, config_service_url)
             security_agent = get_security_agent(config.security_credentials['inbound']['service'],
                                                 config.security_credentials)
             decoded_data = json.loads(security_agent.decode(request.headers, request.get_data().decode('utf8')))
