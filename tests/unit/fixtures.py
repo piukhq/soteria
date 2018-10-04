@@ -125,7 +125,7 @@ CONFIG_CLASS_ARGS = [
     Configuration.JOIN_HANDLER,
     'vault_url',
     'vault_token',
-    'config_service_base_url'
+    'config_service_url'
 ]
 
 
