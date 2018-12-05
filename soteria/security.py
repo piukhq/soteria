@@ -24,7 +24,7 @@ def get_security_agent(security_type, *args, **kwargs):
         agent_class = getattr(security_module, class_name)
         agent_instance = agent_class(*args, **kwargs)
 
-    except (AttributeError, ImportError) as e:
+    except (AttributeError, ImportError):
         error_message = f'Could not find security class: {class_name}.'
         raise SecurityException(error_message)
 
