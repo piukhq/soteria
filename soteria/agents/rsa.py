@@ -5,7 +5,7 @@ from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA as CRYPTO_RSA
 from Crypto.Signature import pkcs1_15
 
-from soteria.base import BaseSecurity
+from soteria.agents.base import BaseSecurity
 from soteria.security import SecurityException
 
 

@@ -1,6 +1,6 @@
 from unittest import TestCase, mock
 
-from soteria import open_auth
+from soteria.agents import open_auth
 from soteria.configuration import Configuration
 from soteria.security import get_security_agent, authorise, SecurityException
 from tests.unit import fixtures

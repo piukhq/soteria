@@ -5,10 +5,7 @@ from unittest import TestCase, mock
 import requests
 
 from soteria.configuration import Configuration, ConfigurationException
-from soteria.base import BaseSecurity
-from soteria.oauth import OAuth
-from soteria.open_auth import OpenAuth
-from soteria.rsa import RSA
+from soteria.agents import base, oauth, open_auth, rsa
 from soteria.security import SecurityException
 from tests.unit import fixtures
 
@@ -16,7 +13,7 @@ from tests.unit import fixtures
 class TestBase(TestCase):
     def setUp(self):
         self.test_credentials = fixtures.TEST_CREDENTIALS
-        self.base_security = BaseSecurity(credentials=self.test_credentials)
+        self.base_security = base.BaseSecurity(credentials=self.test_credentials)
 
     def test_base_security_init(self):
         self.assertEqual(self.base_security.credentials, self.test_credentials)
@@ -42,7 +39,7 @@ class TestBase(TestCase):
 
         with self.assertRaises(SecurityException) as e:
             self.base_security._validate_timestamp(timestamp_one_hour_ago)
-        self.assertTrue(str(e.exception), BaseSecurity.VALIDATION_ERROR_MESSAGE)
+        self.assertTrue(str(e.exception), base.BaseSecurity.VALIDATION_ERROR_MESSAGE)
 
     def test_base_get_key(self):
         credentials = [
@@ -66,9 +63,9 @@ class TestBase(TestCase):
 
 class TestOAuth(TestCase):
     def setUp(self):
-        self.oauth = OAuth(credentials=fixtures.TEST_CREDENTIALS)
+        self.oauth = oauth.OAuth(credentials=fixtures.TEST_CREDENTIALS)
 
-    @mock.patch('soteria.oauth.requests.post')
+    @mock.patch('soteria.agents.oauth.requests.post')
     def test_oauth_encode(self, mock_post):
         test_oauth_access_token = 'test-oauth-access-token'
         mock_post.return_value = mock.MagicMock()
@@ -79,15 +76,15 @@ class TestOAuth(TestCase):
         self.assertTrue(auth_header.endswith(test_oauth_access_token))
         self.assertEqual(encoded_request['json'], fixtures.TEST_REQUEST_DATA)
 
-    @mock.patch('soteria.oauth.requests.post')
+    @mock.patch('soteria.agents.oauth.requests.post')
     def test_oauth_encode_failed_connection(self, mock_post):
         mock_post.side_effect = requests.RequestException('test requests exception')
 
         with self.assertRaises(SecurityException) as e:
             self.oauth.encode(json.dumps(fixtures.TEST_REQUEST_DATA))
-        self.assertEqual(str(e.exception), BaseSecurity.SERVICE_CONNECTION_ERROR)
+        self.assertEqual(str(e.exception), base.BaseSecurity.SERVICE_CONNECTION_ERROR)
 
-    @mock.patch('soteria.oauth.requests.post')
+    @mock.patch('soteria.agents.oauth.requests.post')
     def test_oauth_encode_bad_credentials(self, mock_post):
         bad_credentials = {
             'outbound': {
@@ -99,7 +96,7 @@ class TestOAuth(TestCase):
                 'credentials': []
             }
         }
-        bad_oauth = OAuth(credentials=bad_credentials)
+        bad_oauth = oauth.OAuth(credentials=bad_credentials)
         test_oauth_access_token = 'test-oauth-access-token'
         mock_post.return_value = mock.MagicMock()
         mock_post.return_value.json.return_value = {"access_token": test_oauth_access_token}
@@ -111,7 +108,7 @@ class TestOAuth(TestCase):
 
 class TestOpenAuth(TestCase):
     def setUp(self):
-        self.open_auth = OpenAuth(credentials=fixtures.TEST_CREDENTIALS)
+        self.open_auth = open_auth.OpenAuth(credentials=fixtures.TEST_CREDENTIALS)
 
     def test_open_auth_encode(self):
         encoded_request = self.open_auth.encode(json.dumps(fixtures.TEST_REQUEST_DATA))
@@ -128,7 +125,7 @@ class TestOpenAuth(TestCase):
 
 class TestRSA(TestCase):
     def setUp(self):
-        self.rsa = RSA(credentials=fixtures.TEST_CREDENTIALS)
+        self.rsa = rsa.RSA(credentials=fixtures.TEST_CREDENTIALS)
         self.encoded_request = self.rsa.encode(json.dumps(fixtures.TEST_REQUEST_DATA))
 
     def test_rsa_encode(self):
@@ -147,7 +144,7 @@ class TestRSA(TestCase):
 
         with self.assertRaises(SecurityException) as e:
             self.rsa.decode(headers, json.dumps(fixtures.TEST_REQUEST_DATA))
-        self.assertEqual(str(e.exception), BaseSecurity.VALIDATION_ERROR_MESSAGE)
+        self.assertEqual(str(e.exception), base.BaseSecurity.VALIDATION_ERROR_MESSAGE)
 
     def test_rsa_decode_no_signature_in_header(self):
         headers = {
@@ -157,14 +154,14 @@ class TestRSA(TestCase):
 
         with self.assertRaises(SecurityException) as e:
             self.rsa.decode(headers, json.dumps(fixtures.TEST_REQUEST_DATA))
-        self.assertEqual(str(e.exception), BaseSecurity.VALIDATION_ERROR_MESSAGE)
+        self.assertEqual(str(e.exception), base.BaseSecurity.VALIDATION_ERROR_MESSAGE)
 
     def test_rsa_decode_no_public_key(self):
         headers = self.encoded_request['headers']
-        rsa = RSA(credentials=fixtures.EMPTY_CREDENTIALS)
+        rsa_agent = rsa.RSA(credentials=fixtures.EMPTY_CREDENTIALS)
 
         with self.assertRaises(ConfigurationException) as e:
-            rsa.decode(headers, json.dumps(fixtures.TEST_REQUEST_DATA))
+            rsa_agent.decode(headers, json.dumps(fixtures.TEST_REQUEST_DATA))
         self.assertEqual(str(e.exception), Configuration.SECURITY_ERROR_MESSAGE)
 
     def test_rsa_decode_verify_fail(self):
@@ -175,7 +172,7 @@ class TestRSA(TestCase):
 
         with self.assertRaises(SecurityException) as e:
             self.rsa.decode(headers, json.dumps(fixtures.TEST_REQUEST_DATA))
-        self.assertEqual(str(e.exception), BaseSecurity.VALIDATION_ERROR_MESSAGE)
+        self.assertEqual(str(e.exception), base.BaseSecurity.VALIDATION_ERROR_MESSAGE)
 
     def test_rsa_decode_invalid_timestamp(self):
         headers = {
@@ -185,7 +182,7 @@ class TestRSA(TestCase):
 
         with self.assertRaises(SecurityException) as e:
             self.rsa.decode(headers, json.dumps(fixtures.TEST_REQUEST_DATA))
-        self.assertEqual(str(e.exception), BaseSecurity.VALIDATION_ERROR_MESSAGE)
+        self.assertEqual(str(e.exception), base.BaseSecurity.VALIDATION_ERROR_MESSAGE)
 
     def test_rsa_decode_invalid_authorization(self):
         headers = {
@@ -195,4 +192,4 @@ class TestRSA(TestCase):
 
         with self.assertRaises(SecurityException) as e:
             self.rsa.decode(headers, json.dumps(fixtures.TEST_REQUEST_DATA))
-        self.assertEqual(str(e.exception), BaseSecurity.VALIDATION_ERROR_MESSAGE)
+        self.assertEqual(str(e.exception), base.BaseSecurity.VALIDATION_ERROR_MESSAGE)
