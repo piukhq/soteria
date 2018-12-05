@@ -2,7 +2,7 @@ import json
 
 import requests
 
-from soteria.base import BaseSecurity
+from soteria.agents.base import BaseSecurity
 from soteria.configuration import Configuration
 from soteria.security import SecurityException
 
