@@ -16,9 +16,7 @@ setuptools.setup(
     author='Bink',
     author_email='cprior@bink.com',
     url='http://gitlab.loyaltyangels.local/Olympus/soteria',
-    packages=[
-        'soteria',
-    ],
+    packages=setuptools.find_packages('soteria'),
     package_dir={'soteria': 'soteria'},
     package_data={
         'soteria': ['*.json']
