@@ -25,7 +25,7 @@ def get_security_agent(security_type, *args, **kwargs):
         agent_instance = agent_class(*args, **kwargs)
 
     except (AttributeError, ImportError):
-        error_message = f'Could not find security class: {class_name}.'
+        error_message = 'Could not find security class: {}.'.format(class_name)
         raise SecurityException(error_message)
 
     return agent_instance
