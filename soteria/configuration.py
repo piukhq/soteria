@@ -135,7 +135,9 @@ class Configuration:
         client = hvac.Client(token=self.vault_token, url=self.vault_url)
         try:
             for key_item in key_items:
-                stored_dict = client.read(f'secret/data/{key_item["storage_key"]}')['data']['data']
+                stored_dict = client.read(
+                    'secret/data/{}'.format(key_item["storage_key"])
+                )['data']['data']
 
                 # Stores the value mapped to the 'value' key of the stored data.
                 # If this doesn't exist, i.e for compound keys, the full mapping is stored as the value.
