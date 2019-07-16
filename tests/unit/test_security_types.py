@@ -82,7 +82,9 @@ class TestOAuth(TestCase):
 
         with self.assertRaises(SecurityException) as e:
             self.oauth.encode(json.dumps(fixtures.TEST_REQUEST_DATA))
-        self.assertEqual(str(e.exception), base.BaseSecurity.SERVICE_CONNECTION_ERROR)
+        self.assertTrue(str(e.exception).startswith(
+            'Failed request to get oauth token from test_oauth_url. Exception: test requests exception')
+        )
 
     @mock.patch('soteria.agents.oauth.requests.post')
     def test_oauth_encode_bad_credentials(self, mock_post):
