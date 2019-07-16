@@ -35,12 +35,16 @@ class Configuration:
     JOIN_HANDLER = 1
     VALIDATE_HANDLER = 2
     TRANSACTION_MATCHING_HANDLER = 3
+    CHECK_MEMBERSHIP_HANDLER = 4
+    TRANSACTION_HISTORY_HANDLER = 5
 
     HANDLER_TYPE_CHOICES = (
         (UPDATE_HANDLER, "Update"),
         (JOIN_HANDLER, "Join"),
         (VALIDATE_HANDLER, "Validate"),
-        (TRANSACTION_MATCHING_HANDLER, "Transaction Matching")
+        (TRANSACTION_MATCHING_HANDLER, "Transaction Matching"),
+        (CHECK_MEMBERSHIP_HANDLER, "Check Membership"),
+        (TRANSACTION_HISTORY_HANDLER, "Transaction History"),
     )
 
     SYNC_INTEGRATION = 0
@@ -98,7 +102,8 @@ class Configuration:
         }
 
         try:
-            resp = requests.get(config_service_url, params=params)
+            get_config_service_url = config_service_url + '/configuration'
+            resp = requests.get(get_config_service_url, params=params)
             resp.raise_for_status()
         except (requests.exceptions.RequestException, requests.exceptions.HTTPError) as e:
             raise ConfigurationException(self.ERROR_MESSAGE) from e

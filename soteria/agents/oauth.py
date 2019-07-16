@@ -14,6 +14,7 @@ class OAuth(BaseSecurity):
             credentials = self.credentials['outbound']['credentials'][0]['value']
             url = credentials['url']
             resp = requests.post(url=url, data=credentials['payload'])
+            resp.raise_for_status()
             response_json = resp.json()
 
             request_data = {
@@ -23,7 +24,8 @@ class OAuth(BaseSecurity):
                 }
             }
         except requests.RequestException as e:
-            raise SecurityException(self.SERVICE_CONNECTION_ERROR) from e
+            error = 'Failed request to get oauth token from {}. Exception: {}'.format(url, e)
+            raise SecurityException(error) from e
         except (KeyError, IndexError) as e:
             raise SecurityException(Configuration.SECURITY_ERROR_MESSAGE) from e
 
