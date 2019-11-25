@@ -10,7 +10,7 @@ if sys.argv[-1] == 'publish':
 
 setuptools.setup(
     name='soteria',
-    version='1.0.2',
+    version='1.1.0',
     description="Configuration and security methods for the merchant API framework",
     long_description='see README',
     author='Bink',
