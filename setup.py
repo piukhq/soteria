@@ -28,6 +28,7 @@ setuptools.setup(
         'pycryptodome>=3.6.6',
         'requests>=2.19.1',
         'urllib3>=1.23',
+        'PGPy>=0.5.2',
     ],
     license="Internal",
     zip_safe=False,
