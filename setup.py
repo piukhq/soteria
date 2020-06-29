@@ -12,6 +12,7 @@ setuptools.setup(
     name='soteria',
     version='1.1.0',
     description="Configuration and security methods for the merchant API framework",
+    long_description_content_type="text/markdown",
     long_description='see README',
     author='Bink',
     author_email='cprior@bink.com',
