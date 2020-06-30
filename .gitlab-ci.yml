@@ -1,5 +1,6 @@
 stages:
   - tests
+  - build
 
 tests:
   stage: tests
@@ -16,3 +17,14 @@ flake8:
   stage: tests
   script:
     - flake8 *
+
+build:
+  stage: build
+  image: binkhq/python:3.8
+  script:
+    - pip install twine
+    - python setup.py sdist bdist
+    - twine check dist/*
+    - twine upload --non-interactive --disable-progress-bar --repository-url https://pypi.tools.bink.sh/simple/ dist/*
+  only:
+    - tags
