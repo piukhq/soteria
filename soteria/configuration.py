@@ -2,7 +2,10 @@ import hvac
 import requests
 from hashids import Hashids
 
+from soteria.reporting import get_logger
+
 hash_ids = Hashids(min_length=32, salt='GJgCh--VgsonCWacO5-MxAuMS9hcPeGGxj5tGsT40FM')
+logger = get_logger("soteria")
 
 
 class ConfigurationException(Exception):
@@ -34,7 +37,7 @@ class Configuration:
     UPDATE_HANDLER = 0
     JOIN_HANDLER = 1
     VALIDATE_HANDLER = 2
-    TRANSACTION_MATCHING_HANDLER = 3
+    TRANSACTION_MATCHING = 3
     CHECK_MEMBERSHIP_HANDLER = 4
     TRANSACTION_HISTORY_HANDLER = 5
 
@@ -42,7 +45,7 @@ class Configuration:
         (UPDATE_HANDLER, "Update"),
         (JOIN_HANDLER, "Join"),
         (VALIDATE_HANDLER, "Validate"),
-        (TRANSACTION_MATCHING_HANDLER, "Transaction Matching"),
+        (TRANSACTION_MATCHING, "Transaction Matching"),
         (CHECK_MEMBERSHIP_HANDLER, "Check Membership"),
         (TRANSACTION_HISTORY_HANDLER, "Transaction History"),
     )
@@ -79,7 +82,8 @@ class Configuration:
         (CRITICAL_LOG_LEVEL, "Critical")
     )
 
-    ERROR_MESSAGE = "There is an error with the configuration or it was not possible to retrieve."
+    HTTP_ERROR_MESSAGE = "Failed to connect to configuration service."
+    PARSE_ERROR_MESSAGE = "Failed to parse configuration service response."
     SECURITY_ERROR_MESSAGE = "Error retrieving security credentials for this request."
 
     def __init__(self, scheme_slug, handler_type, vault_url, vault_token, config_service_url):
@@ -88,12 +92,17 @@ class Configuration:
         :param handler_type: Int. A choice from Configuration.HANDLER_TYPE_CHOICES.
         """
         self.scheme_slug = scheme_slug
-        self.handler_type = (handler_type, self.HANDLER_TYPE_CHOICES[handler_type][1].upper())
+        self.handler_type = (handler_type, self.handler_type_as_str(handler_type))
         self.vault_url = vault_url
         self.vault_token = vault_token
 
         self.data = self._get_config_data(config_service_url)
         self._process_config_data()
+        logger.debug('retrieved configuration for {}. scheme slug: {}'.format(self.handler_type, scheme_slug))
+
+    @classmethod
+    def handler_type_as_str(cls, handler_type: int) -> str:
+        return cls.HANDLER_TYPE_CHOICES[handler_type][1].upper()
 
     def _get_config_data(self, config_service_url):
         params = {
@@ -105,8 +114,8 @@ class Configuration:
             get_config_service_url = config_service_url + '/configuration'
             resp = requests.get(get_config_service_url, params=params)
             resp.raise_for_status()
-        except (requests.exceptions.RequestException, requests.exceptions.HTTPError) as e:
-            raise ConfigurationException(self.ERROR_MESSAGE) from e
+        except requests.exceptions.RequestException as e:
+            raise ConfigurationException(self.HTTP_ERROR_MESSAGE) from e
 
         return resp.json()
 
@@ -122,14 +131,11 @@ class Configuration:
             self.security_credentials = self.data['security_credentials']
             inbound_data = self.security_credentials['inbound']['credentials']
             outbound_data = self.security_credentials['outbound']['credentials']
-        except KeyError as e:
-            raise ConfigurationException(self.ERROR_MESSAGE) from e
 
-        try:
             self.security_credentials['inbound']['credentials'] = self.get_security_credentials(inbound_data)
             self.security_credentials['outbound']['credentials'] = self.get_security_credentials(outbound_data)
-        except (TypeError, KeyError) as e:
-            raise ConfigurationException(self.SECURITY_ERROR_MESSAGE) from e
+        except KeyError as ex:
+            raise ConfigurationException(self.PARSE_ERROR_MESSAGE) from ex
 
     def get_security_credentials(self, key_items):
         """
@@ -148,7 +154,9 @@ class Configuration:
                 # If this doesn't exist, i.e for compound keys, the full mapping is stored as the value.
                 value = stored_dict.get('value')
                 key_item.update(value=value or stored_dict)
-        except TypeError as e:
+        except (TypeError, KeyError) as e:
             raise ConfigurationException(self.SECURITY_ERROR_MESSAGE) from e
+        except requests.RequestException as e:
+            raise ConfigurationException(self.HTTP_ERROR_MESSAGE) from e
 
         return key_items

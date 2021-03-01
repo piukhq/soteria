@@ -2,21 +2,30 @@ stages:
   - tests
   - build
 
+default:
+  image: binkhq/python:3.9
+
 tests:
   stage: tests
+  before_script:
+    - pip install --upgrade pip pipenv
+    - pipenv install --dev --system --deploy --ignore-pipfile
   script:
-    - pip3 install -r requirements.txt
     - pytest tests/unit --cov=soteria
 
 complexity:
   stage: tests
+  before_script:
+    - pip install xenon
   script:
     - xenon --max-average A --max-modules B --max-absolute B .
 
-flake8:
+style:
   stage: tests
+  before_script:
+    - pip install flake8
   script:
-    - flake8 *
+    - flake8
 
 build:
   stage: build
