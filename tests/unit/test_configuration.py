@@ -44,7 +44,7 @@ class TestConfiguration(TestCase):
 
         with self.assertRaises(ConfigurationException) as e:
             Configuration(*fixtures.CONFIG_CLASS_ARGS)
-        self.assertEqual(str(e.exception), Configuration.ERROR_MESSAGE)
+        self.assertEqual(str(e.exception), Configuration.HTTP_ERROR_MESSAGE)
 
     @mock.patch('soteria.configuration.hvac.Client')
     @mock.patch('soteria.configuration.requests.get')
@@ -57,7 +57,7 @@ class TestConfiguration(TestCase):
 
         with self.assertRaises(ConfigurationException) as e:
             Configuration(*fixtures.CONFIG_CLASS_ARGS)
-        self.assertEqual(str(e.exception), Configuration.ERROR_MESSAGE)
+        self.assertEqual(str(e.exception), Configuration.PARSE_ERROR_MESSAGE)
 
     @mock.patch('soteria.configuration.hvac.Client')
     @mock.patch('soteria.configuration.requests.get')
