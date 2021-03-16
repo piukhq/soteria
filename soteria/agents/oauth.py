@@ -4,16 +4,21 @@ import requests
 
 from soteria.agents.base import BaseSecurity
 from soteria.configuration import Configuration
+from soteria.requests_retry import requests_retry_session
 from soteria.security import SecurityException
 
 
 class OAuth(BaseSecurity):
 
+    def __init__(self, credentials=None):
+        super().__init__(credentials=credentials)
+        self.session = requests_retry_session()
+
     def encode(self, json_data):
         try:
             credentials = self.credentials['outbound']['credentials'][0]['value']
             url = credentials['url']
-            resp = requests.post(url=url, data=credentials['payload'])
+            resp = self.session.post(url=url, data=credentials['payload'])
             resp.raise_for_status()
             response_json = resp.json()
 
