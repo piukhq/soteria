@@ -16,7 +16,7 @@ class RSA(BaseSecurity):
     def encode(self, json_data):
         """
         :param json_data: json string of payload
-        :return: dict of parameters to be unpacked for requests.post()
+        :return: dict of parameters to be unpacked for session.post()
         """
         json_data_with_timestamp, timestamp = self._add_timestamp(json_data)
 

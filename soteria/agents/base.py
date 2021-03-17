@@ -18,7 +18,7 @@ class BaseSecurity:
 
     def encode(self, *args, **kwargs):
         """
-        :return: dict of parameters to be unpacked for requests.post()
+        :return: dict of parameters to be unpacked for session.post()
         """
         raise NotImplementedError()
 
