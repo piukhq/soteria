@@ -31,4 +31,3 @@ def get_secret_from_dev_key_vault():
 config = get_secret_from_dev_key_vault()
 
 print(config.security_credentials)
-
