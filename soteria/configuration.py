@@ -1,6 +1,10 @@
-import hvac
 import requests
+import json
 from hashids import Hashids
+
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
+from azure.core.exceptions import HttpResponseError
 
 from soteria.reporting import get_logger
 from soteria.requests_retry import requests_retry_session
@@ -86,6 +90,7 @@ class Configuration:
     HTTP_ERROR_MESSAGE = "Failed to connect to configuration service."
     PARSE_ERROR_MESSAGE = "Failed to parse configuration service response."
     SECURITY_ERROR_MESSAGE = "Error retrieving security credentials for this request."
+    UNKNOWN_ERROR = "An unexpected problem has occurred obtaining secrets, please investigate"
 
     def __init__(self, scheme_slug, handler_type, vault_url, vault_token, config_service_url):
         """
@@ -145,20 +150,22 @@ class Configuration:
         :param key_items: list of dicts {'type': e.g 'bink_public_key', 'storage_key': auto-generated hash from helios}
         :return: key_items: returns same list of dict with added 'value' keys containing actual credential values.
         """
-        client = hvac.Client(token=self.vault_token, url=self.vault_url)
+        kv_credential = DefaultAzureCredential()
+        client = SecretClient(vault_url=self.vault_url, credential=kv_credential)
         try:
             for key_item in key_items:
-                stored_dict = client.read(
-                    'secret/data/{}'.format(key_item["storage_key"])
-                )['data']['data']
+                stored_value = json.loads(client.get_secret(key_item["storage_key"]).value)
+                stored_dict = stored_value['data']
 
                 # Stores the value mapped to the 'value' key of the stored data.
                 # If this doesn't exist, i.e for compound keys, the full mapping is stored as the value.
                 value = stored_dict.get('value')
                 key_item.update(value=value or stored_dict)
-        except (TypeError, KeyError) as e:
+        except (TypeError, KeyError, ValueError) as e:
             raise ConfigurationException(self.SECURITY_ERROR_MESSAGE) from e
-        except requests.RequestException as e:
+        except HttpResponseError as e:
             raise ConfigurationException(self.HTTP_ERROR_MESSAGE) from e
+        except Exception as e:
+            raise ConfigurationException(self.UNKNOWN_ERROR) from e
 
         return key_items
