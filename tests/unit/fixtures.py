@@ -157,13 +157,7 @@ MOCK_CONFIG_JSON = {
 }
 
 
-MOCK_VAULT_RESPONSE = {
-    'data': {
-        'data': {
-            'value': 'test_rsa_key'
-        }
-    }
-}
+MOCK_VAULT_RESPONSE = {'data': {'value': 'test_rsa_key'}}
 
 
 class MockRequest:

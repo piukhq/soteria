@@ -5,11 +5,12 @@ name = "pypi"
 
 [packages]
 hashids = "*"
-hvac = "*"
 pycryptodome = "*"
 requests = "*"
 PGPy = "*"
 soteria = {editable = true, path = "."}
+azure-identity = "*"
+azure-keyvault-secrets = "*"
 
 [dev-packages]
 black = "==20.8b1"
@@ -17,6 +18,7 @@ flake8 = "*"
 mypy = "*"
 pytest = "*"
 pytest-cov = "*"
+ptpython = "*"
 
 [requires]
 python_version = "3.9"
