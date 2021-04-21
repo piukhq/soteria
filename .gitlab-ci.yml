@@ -29,7 +29,7 @@ style:
 
 build:
   stage: build
-  image: binkhq/python:3.8
+  image: binkhq/python:3.7
   script:
     - pip install twine
     - python setup.py sdist bdist
