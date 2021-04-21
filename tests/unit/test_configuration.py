@@ -32,7 +32,9 @@ class TestConfiguration(TestCase):
 
     @mock.patch.object(Configuration, "get_security_credentials")
     @mock.patch('soteria.configuration.requests_retry_session')
-    def test_configuration_init_requests_exception_from_config_service(self, mock_requests_retry_session, mock_get_security_credentials):
+    def test_configuration_init_requests_exception_from_config_service(self,
+                                                                       mock_requests_retry_session,
+                                                                       mock_get_security_credentials):
         mock_requests_retry_session.return_value.get.return_value.status_code = 404
         mock_requests_retry_session.return_value.get.return_value.json.return_value = {'error': 'Not found'}
         mock_requests_retry_session.return_value.get.return_value.raise_for_status.side_effect = (
@@ -46,7 +48,9 @@ class TestConfiguration(TestCase):
 
     @mock.patch.object(Configuration, "get_security_credentials")
     @mock.patch('soteria.configuration.requests_retry_session')
-    def test_configuration_init_bad_config_from_service(self, mock_requests_retry_session, mock_get_security_credentials):
+    def test_configuration_init_bad_config_from_service(self,
+                                                        mock_requests_retry_session,
+                                                        mock_get_security_credentials):
         mock_requests_retry_session.return_value.get.return_value.status_code = 200
         mock_requests_retry_session.return_value.get.return_value.json.return_value = {'error': 'Not found'}
         mock_get_security_credentials.return_value = fixtures.MOCK_VAULT_RESPONSE
