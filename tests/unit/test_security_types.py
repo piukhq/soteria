@@ -65,29 +65,28 @@ class TestOAuth(TestCase):
     def setUp(self):
         self.oauth = oauth.OAuth(credentials=fixtures.TEST_CREDENTIALS)
 
-    @mock.patch('soteria.agents.oauth.requests.post')
-    def test_oauth_encode(self, mock_post):
-        test_oauth_access_token = 'test-oauth-access-token'
-        mock_post.return_value = mock.MagicMock()
-        mock_post.return_value.json.return_value = {"access_token": test_oauth_access_token}
+    def test_oauth_encode(self):
+        with mock.patch.object(self.oauth, 'session') as mock_session:
+            test_oauth_access_token = 'test-oauth-access-token'
+            mock_session.post.return_value.json.return_value = {
+                "access_token": test_oauth_access_token}
 
-        encoded_request = self.oauth.encode(json.dumps(fixtures.TEST_REQUEST_DATA))
-        auth_header = encoded_request['headers']['Authorization']
-        self.assertTrue(auth_header.endswith(test_oauth_access_token))
-        self.assertEqual(encoded_request['json'], fixtures.TEST_REQUEST_DATA)
+            encoded_request = self.oauth.encode(json.dumps(fixtures.TEST_REQUEST_DATA))
+            auth_header = encoded_request['headers']['Authorization']
+            self.assertTrue(auth_header.endswith(test_oauth_access_token))
+            self.assertEqual(encoded_request['json'], fixtures.TEST_REQUEST_DATA)
 
-    @mock.patch('soteria.agents.oauth.requests.post')
-    def test_oauth_encode_failed_connection(self, mock_post):
-        mock_post.side_effect = requests.RequestException('test requests exception')
+    def test_oauth_encode_failed_connection(self):
+        with mock.patch.object(self.oauth, 'session') as mock_session:
+            mock_session.post.side_effect = requests.RequestException('test requests exception')
 
-        with self.assertRaises(SecurityException) as e:
-            self.oauth.encode(json.dumps(fixtures.TEST_REQUEST_DATA))
-        self.assertTrue(str(e.exception).startswith(
-            'Failed request to get oauth token from test_oauth_url. Exception: test requests exception')
-        )
+            with self.assertRaises(SecurityException) as e:
+                self.oauth.encode(json.dumps(fixtures.TEST_REQUEST_DATA))
+            self.assertTrue(str(e.exception).startswith(
+                'Failed request to get oauth token from test_oauth_url. Exception: test requests exception')
+            )
 
-    @mock.patch('soteria.agents.oauth.requests.post')
-    def test_oauth_encode_bad_credentials(self, mock_post):
+    def test_oauth_encode_bad_credentials(self):
         bad_credentials = {
             'outbound': {
                 'service': 0,
@@ -100,12 +99,12 @@ class TestOAuth(TestCase):
         }
         bad_oauth = oauth.OAuth(credentials=bad_credentials)
         test_oauth_access_token = 'test-oauth-access-token'
-        mock_post.return_value = mock.MagicMock()
-        mock_post.return_value.json.return_value = {"access_token": test_oauth_access_token}
+        with mock.patch.object(self.oauth, 'session') as mock_session:
+            mock_session.post.return_value.json.return_value = {"access_token": test_oauth_access_token}
 
-        with self.assertRaises(SecurityException) as e:
-            bad_oauth.encode(json.dumps(fixtures.TEST_REQUEST_DATA))
-        self.assertEqual(str(e.exception), Configuration.SECURITY_ERROR_MESSAGE)
+            with self.assertRaises(SecurityException) as e:
+                bad_oauth.encode(json.dumps(fixtures.TEST_REQUEST_DATA))
+            self.assertEqual(str(e.exception), Configuration.SECURITY_ERROR_MESSAGE)
 
 
 class TestOpenAuth(TestCase):

@@ -7,6 +7,7 @@ from azure.keyvault.secrets import SecretClient
 from azure.core.exceptions import HttpResponseError
 
 from soteria.reporting import get_logger
+from soteria.requests_retry import requests_retry_session
 
 hash_ids = Hashids(min_length=32, salt='GJgCh--VgsonCWacO5-MxAuMS9hcPeGGxj5tGsT40FM')
 logger = get_logger("soteria")
@@ -100,6 +101,7 @@ class Configuration:
         self.handler_type = (handler_type, self.handler_type_as_str(handler_type))
         self.vault_url = vault_url
         self.vault_token = vault_token
+        self.session = requests_retry_session()
 
         self.data = self._get_config_data(config_service_url)
         self._process_config_data()
@@ -117,7 +119,7 @@ class Configuration:
 
         try:
             get_config_service_url = config_service_url + '/configuration'
-            resp = requests.get(get_config_service_url, params=params)
+            resp = self.session.get(get_config_service_url, params=params)
             resp.raise_for_status()
         except requests.exceptions.RequestException as e:
             raise ConfigurationException(self.HTTP_ERROR_MESSAGE) from e

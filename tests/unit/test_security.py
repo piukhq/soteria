@@ -21,8 +21,9 @@ class TestSecurity(TestCase):
         self.assertEqual(str(e.exception), 'Could not find security class: OpenAuth.')
 
     @mock.patch.object(Configuration, "get_security_credentials")
-    @mock.patch('soteria.configuration.requests.get')
-    def test_authorise(self, mock_get, mock_get_security_credentials):
+    @mock.patch('soteria.configuration.requests_retry_session')
+    def test_authorise(self, mock_requests_retry_session, mock_get_security_credentials):
+
         mock_config = fixtures.MOCK_CONFIG_JSON
         mock_config['security_credentials'] = {
             "inbound": {
@@ -34,9 +35,9 @@ class TestSecurity(TestCase):
                 "credentials": []
             }
         }
-        mock_get.return_value = mock.MagicMock()
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = mock_config
+
+        mock_requests_retry_session.return_value.get.return_value.status_code = 200
+        mock_requests_retry_session.return_value.get.return_value.json.return_value = mock_config
         mock_get_security_credentials.return_value = fixtures.MOCK_VAULT_RESPONSE
 
         @authorise(Configuration.JOIN_HANDLER, fixtures.MockRequest, 'vault_url', 'vault_token', 'config_url')
