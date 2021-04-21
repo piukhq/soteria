@@ -27,13 +27,27 @@ style:
   script:
     - flake8
 
-build:
+build-3.7:
   stage: build
-  image: binkhq/python:3.8
-  script:
+  image: binkhq/python:3.7
+  script: &install_script
     - pip install twine
     - python setup.py sdist bdist
     - twine check dist/*
     - twine upload --non-interactive --disable-progress-bar --repository-url https://pypi.tools.bink.sh/simple/ dist/*
+  only:
+    - tags
+
+build-3.8:
+  stage: build
+  image: binkhq/python:3.8
+  script: *install_script
+  only:
+    - tags
+
+build-3.9:
+  stage: build
+  image: binkhq/python:3.9
+  script: *install_script
   only:
     - tags

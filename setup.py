@@ -35,7 +35,7 @@ setuptools.setup(
         'Intended Audience :: Developers',
         'License :: Internal',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     test_suite='tests',
 )
