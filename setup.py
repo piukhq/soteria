@@ -22,10 +22,11 @@ setuptools.setup(
     include_package_data=True,
     install_requires=[
         'hashids>=1.3.1',
-        'hvac>=0.10.8',
         'pycryptodome>=3.10.1',
         'requests>=2.25.1',
         'PGPy>=0.5.3',
+        'azure-identity>=1.5.0',
+        'azure-keyvault-secrets>=4.2.0',
     ],
     license="Internal",
     zip_safe=False,
