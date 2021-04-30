@@ -150,7 +150,12 @@ class Configuration:
         :param key_items: list of dicts {'type': e.g 'bink_public_key', 'storage_key': auto-generated hash from helios}
         :return: key_items: returns same list of dict with added 'value' keys containing actual credential values.
         """
-        kv_credential = DefaultAzureCredential()
+        kv_credential = DefaultAzureCredential(
+            exclude_environment_credential=True,
+            exclude_shared_token_cache_credential=True,
+            exclude_visual_studio_code_credential=True,
+            exclude_interactive_browser_credential=True,
+        )
         client = SecretClient(vault_url=self.vault_url, credential=kv_credential)
         try:
             for key_item in key_items:
