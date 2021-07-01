@@ -27,6 +27,7 @@ setuptools.setup(
         'PGPy>=0.5.3',
         'azure-identity>=1.5.0',
         'azure-keyvault-secrets>=4.2.0',
+        'tenacity>=7.0.0',
     ],
     license="Internal",
     zip_safe=False,
