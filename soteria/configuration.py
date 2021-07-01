@@ -5,6 +5,11 @@ from hashids import Hashids
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
 from azure.core.exceptions import HttpResponseError
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from soteria.reporting import get_logger
 from soteria.requests_retry import requests_retry_session
@@ -144,6 +149,11 @@ class Configuration:
         except KeyError as ex:
             raise ConfigurationException(self.PARSE_ERROR_MESSAGE) from ex
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=3, max=12),
+        reraise=True,
+    )
     def get_security_credentials(self, key_items):
         """
         Retrieves security credential values from key storage vault.
