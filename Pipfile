@@ -11,6 +11,7 @@ PGPy = "*"
 soteria = {editable = true, path = "."}
 azure-identity = "*"
 azure-keyvault-secrets = "*"
+tenacity = "*"
 
 [dev-packages]
 black = "==20.8b1"
