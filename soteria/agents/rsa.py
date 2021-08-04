@@ -13,6 +13,7 @@ class RSA(BaseSecurity):
     """
     Generate and verify requests with an RSA signature.
     """
+
     def encode(self, json_data):
         """
         :param json_data: json string of payload
@@ -20,17 +21,14 @@ class RSA(BaseSecurity):
         """
         json_data_with_timestamp, timestamp = self._add_timestamp(json_data)
 
-        key = CRYPTO_RSA.importKey(self._get_key('bink_private_key', self.credentials['outbound']['credentials']))
-        digest = SHA256.new(json_data_with_timestamp.encode('utf8'))
+        key = CRYPTO_RSA.importKey(self._get_key("bink_private_key", self.credentials["outbound"]["credentials"]))
+        digest = SHA256.new(json_data_with_timestamp.encode("utf8"))
         signer = pkcs1_15.new(key)
-        signature = base64.b64encode(signer.sign(digest)).decode('utf8')
+        signature = base64.b64encode(signer.sign(digest)).decode("utf8")
 
         encoded_request = {
-            'json': json.loads(json_data),
-            'headers': {
-                'Authorization': 'Signature {}'.format(signature),
-                'X-REQ-TIMESTAMP': timestamp
-            }
+            "json": json.loads(json_data),
+            "headers": {"Authorization": "Signature {}".format(signature), "X-REQ-TIMESTAMP": timestamp},
         }
         return encoded_request
 
@@ -47,21 +45,21 @@ class RSA(BaseSecurity):
         :return: json string of payload
         """
         try:
-            auth_header = headers['Authorization']
-            timestamp = headers['X-REQ-TIMESTAMP']
-            prefix, signature = auth_header.split(' ')
+            auth_header = headers["Authorization"]
+            timestamp = headers["X-REQ-TIMESTAMP"]
+            prefix, signature = auth_header.split(" ")
         except (KeyError, ValueError) as e:
             raise SecurityException(self.VALIDATION_ERROR_MESSAGE) from e
 
-        if prefix.lower() != 'signature':
+        if prefix.lower() != "signature":
             raise SecurityException(self.VALIDATION_ERROR_MESSAGE)
 
         self._validate_timestamp(timestamp)
 
-        json_data_with_timestamp = '{}{}'.format(json_data, timestamp)
-        key = CRYPTO_RSA.importKey(self._get_key('merchant_public_key', self.credentials['inbound']['credentials']))
+        json_data_with_timestamp = "{}{}".format(json_data, timestamp)
+        key = CRYPTO_RSA.importKey(self._get_key("merchant_public_key", self.credentials["inbound"]["credentials"]))
 
-        digest = SHA256.new(json_data_with_timestamp.encode('utf8'))
+        digest = SHA256.new(json_data_with_timestamp.encode("utf8"))
         signer = pkcs1_15.new(key)
         decoded_sig = base64.b64decode(signature)
 

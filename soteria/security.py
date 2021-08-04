@@ -1,8 +1,9 @@
 import json
+
 from importlib import import_module
 
-from soteria.configuration import Configuration
 from soteria.agents import registry
+from soteria.configuration import Configuration
 
 
 class SecurityException(Exception):
@@ -19,13 +20,13 @@ def get_security_agent(security_type, *args, **kwargs):
     :return: agent instance
     """
     try:
-        module_name, class_name = registry.TYPES[security_type].split('.')
-        security_module = import_module('.agents.' + module_name, package='soteria')
+        module_name, class_name = registry.TYPES[security_type].split(".")
+        security_module = import_module(".agents." + module_name, package="soteria")
         agent_class = getattr(security_module, class_name)
         agent_instance = agent_class(*args, **kwargs)
 
     except (AttributeError, ImportError):
-        error_message = 'Could not find security class: {}.'.format(class_name)
+        error_message = "Could not find security class: {}.".format(class_name)
         raise SecurityException(error_message)
 
     return agent_instance
@@ -43,14 +44,17 @@ def authorise(handler_type, request, vault_url, vault_token, config_service_url)
     :param config_service_url: Str. Url to configuration service
     :return: decorated function
     """
+
     def decorator(fn):
         def wrapper(*args, **kwargs):
-            config = Configuration(kwargs['scheme_slug'], int(handler_type), vault_url, vault_token,
-                                   config_service_url)
-            security_agent = get_security_agent(config.security_credentials['inbound']['service'],
-                                                config.security_credentials)
-            decoded_data = json.loads(security_agent.decode(request.headers, request.get_data().decode('utf8')))
+            config = Configuration(kwargs["scheme_slug"], int(handler_type), vault_url, vault_token, config_service_url)
+            security_agent = get_security_agent(
+                config.security_credentials["inbound"]["service"], config.security_credentials
+            )
+            decoded_data = json.loads(security_agent.decode(request.headers, request.get_data().decode("utf8")))
 
             return fn(data=decoded_data, config=config, *args, **kwargs)
+
         return wrapper
+
     return decorator

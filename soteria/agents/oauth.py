@@ -9,27 +9,24 @@ from soteria.security import SecurityException
 
 
 class OAuth(BaseSecurity):
-
     def __init__(self, credentials=None):
         super().__init__(credentials=credentials)
         self.session = requests_retry_session()
 
     def encode(self, json_data):
         try:
-            credentials = self.credentials['outbound']['credentials'][0]['value']
-            url = credentials['url']
-            resp = self.session.post(url=url, data=credentials['payload'])
+            credentials = self.credentials["outbound"]["credentials"][0]["value"]
+            url = credentials["url"]
+            resp = self.session.post(url=url, data=credentials["payload"])
             resp.raise_for_status()
             response_json = resp.json()
 
             request_data = {
                 "json": json.loads(json_data),
-                "headers": {
-                    "Authorization": "{} {}".format(credentials['prefix'], response_json['access_token'])
-                }
+                "headers": {"Authorization": "{} {}".format(credentials["prefix"], response_json["access_token"])},
             }
         except requests.RequestException as e:
-            error = 'Failed request to get oauth token from {}. Exception: {}'.format(url, e)
+            error = "Failed request to get oauth token from {}. Exception: {}".format(url, e)
             raise SecurityException(error) from e
         except (KeyError, IndexError) as e:
             raise SecurityException(Configuration.SECURITY_ERROR_MESSAGE) from e
