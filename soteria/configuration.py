@@ -1,20 +1,18 @@
-import requests
 import json
-from hashids import Hashids
+import typing as t
 
+import requests
+
+from azure.core.exceptions import HttpResponseError
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
-from azure.core.exceptions import HttpResponseError
-from tenacity import (
-    retry,
-    stop_after_attempt,
-    wait_exponential,
-)
+from hashids import Hashids
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from soteria.reporting import get_logger
 from soteria.requests_retry import requests_retry_session
 
-hash_ids = Hashids(min_length=32, salt='GJgCh--VgsonCWacO5-MxAuMS9hcPeGGxj5tGsT40FM')
+hash_ids = Hashids(min_length=32, salt="GJgCh--VgsonCWacO5-MxAuMS9hcPeGGxj5tGsT40FM")
 logger = get_logger("soteria")
 
 
@@ -22,11 +20,11 @@ class ConfigurationException(Exception):
     pass
 
 
-def generate_record_uid(scheme_account_id):
+def generate_record_uid(scheme_account_id: int) -> str:
     return hash_ids.encode(scheme_account_id)
 
 
-def decode_record_uid(record_uid):
+def decode_record_uid(record_uid: str) -> int:
     return hash_ids.decode(record_uid)[0]
 
 
@@ -44,6 +42,7 @@ class Configuration:
     - retry_limit: number of times to retry on failed request.
     - log_level: level of logging to record e.g DEBUG for all, WARNING for warning logs and above.
     """
+
     UPDATE_HANDLER = 0
     JOIN_HANDLER = 1
     VALIDATE_HANDLER = 2
@@ -89,7 +88,7 @@ class Configuration:
         (INFO_LOG_LEVEL, "Info"),
         (WARNING_LOG_LEVEL, "Warning"),
         (ERROR_LOG_LEVEL, "Error"),
-        (CRITICAL_LOG_LEVEL, "Critical")
+        (CRITICAL_LOG_LEVEL, "Critical"),
     )
 
     HTTP_ERROR_MESSAGE = "Failed to connect to configuration service."
@@ -97,7 +96,9 @@ class Configuration:
     SECURITY_ERROR_MESSAGE = "Error retrieving security credentials for this request."
     UNKNOWN_ERROR = "An unexpected problem has occurred obtaining secrets, please investigate"
 
-    def __init__(self, scheme_slug, handler_type, vault_url, vault_token, config_service_url):
+    def __init__(
+        self, scheme_slug: str, handler_type: int, vault_url: str, vault_token: str, config_service_url: str
+    ) -> None:
         """
         :param scheme_slug: merchant identifier.
         :param handler_type: Int. A choice from Configuration.HANDLER_TYPE_CHOICES.
@@ -110,20 +111,17 @@ class Configuration:
 
         self.data = self._get_config_data(config_service_url)
         self._process_config_data()
-        logger.debug('retrieved configuration for {}. scheme slug: {}'.format(self.handler_type, scheme_slug))
+        logger.debug("retrieved configuration for {}. scheme slug: {}".format(self.handler_type, scheme_slug))
 
     @classmethod
     def handler_type_as_str(cls, handler_type: int) -> str:
         return cls.HANDLER_TYPE_CHOICES[handler_type][1].upper()
 
-    def _get_config_data(self, config_service_url):
-        params = {
-            'merchant_id': self.scheme_slug,
-            'handler_type': self.handler_type[0]
-        }
+    def _get_config_data(self, config_service_url: str) -> t.Any:
+        params: t.Dict[str, t.Union[str, int]] = {"merchant_id": self.scheme_slug, "handler_type": self.handler_type[0]}
 
         try:
-            get_config_service_url = config_service_url + '/configuration'
+            get_config_service_url = config_service_url + "/configuration"
             resp = self.session.get(get_config_service_url, params=params)
             resp.raise_for_status()
         except requests.exceptions.RequestException as e:
@@ -131,21 +129,21 @@ class Configuration:
 
         return resp.json()
 
-    def _process_config_data(self):
+    def _process_config_data(self) -> None:
         try:
-            self.merchant_url = self.data['merchant_url']
-            self.integration_service = self.INTEGRATION_CHOICES[self.data['integration_service']][1].upper()
-            self.retry_limit = self.data['retry_limit']
-            self.log_level = self.LOG_LEVEL_CHOICES[self.data['log_level']][1].upper()
-            self.callback_url = self.data['callback_url']
-            self.country = self.data['country']
+            self.merchant_url = self.data["merchant_url"]
+            self.integration_service = self.INTEGRATION_CHOICES[self.data["integration_service"]][1].upper()
+            self.retry_limit = self.data["retry_limit"]
+            self.log_level = self.LOG_LEVEL_CHOICES[self.data["log_level"]][1].upper()
+            self.callback_url = self.data["callback_url"]
+            self.country = self.data["country"]
 
-            self.security_credentials = self.data['security_credentials']
-            inbound_data = self.security_credentials['inbound']['credentials']
-            outbound_data = self.security_credentials['outbound']['credentials']
+            self.security_credentials = self.data["security_credentials"]
+            inbound_data = self.security_credentials["inbound"]["credentials"]
+            outbound_data = self.security_credentials["outbound"]["credentials"]
 
-            self.security_credentials['inbound']['credentials'] = self.get_security_credentials(inbound_data)
-            self.security_credentials['outbound']['credentials'] = self.get_security_credentials(outbound_data)
+            self.security_credentials["inbound"]["credentials"] = self.get_security_credentials(inbound_data)
+            self.security_credentials["outbound"]["credentials"] = self.get_security_credentials(outbound_data)
         except KeyError as ex:
             raise ConfigurationException(self.PARSE_ERROR_MESSAGE) from ex
 
@@ -154,7 +152,7 @@ class Configuration:
         wait=wait_exponential(multiplier=1, min=3, max=12),
         reraise=True,
     )
-    def get_security_credentials(self, key_items):
+    def get_security_credentials(self, key_items: t.List[dict]) -> t.List[dict]:
         """
         Retrieves security credential values from key storage vault.
         :param key_items: list of dicts {'type': e.g 'bink_public_key', 'storage_key': auto-generated hash from helios}
@@ -170,11 +168,11 @@ class Configuration:
         try:
             for key_item in key_items:
                 stored_value = json.loads(client.get_secret(key_item["storage_key"]).value)
-                stored_dict = stored_value['data']
+                stored_dict = stored_value["data"]
 
                 # Stores the value mapped to the 'value' key of the stored data.
                 # If this doesn't exist, i.e for compound keys, the full mapping is stored as the value.
-                value = stored_dict.get('value')
+                value = stored_dict.get("value")
                 key_item.update(value=value or stored_dict)
         except (TypeError, KeyError, ValueError) as e:
             raise ConfigurationException(self.SECURITY_ERROR_MESSAGE) from e
