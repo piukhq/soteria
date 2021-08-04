@@ -1,4 +1,5 @@
 import json
+import typing as t
 
 import requests
 
@@ -9,13 +10,13 @@ from soteria.security import SecurityException
 
 
 class OAuth(BaseSecurity):
-    def __init__(self, credentials=None):
+    def __init__(self, credentials: t.Optional[t.Dict[str, t.Any]] = None) -> None:
         super().__init__(credentials=credentials)
         self.session = requests_retry_session()
 
-    def encode(self, json_data):
+    def encode(self, json_data: str) -> t.Dict[str, t.Any]:  # type: ignore
         try:
-            credentials = self.credentials["outbound"]["credentials"][0]["value"]
+            credentials = t.cast(t.Dict[str, t.Any], self.credentials)["outbound"]["credentials"][0]["value"]
             url = credentials["url"]
             resp = self.session.post(url=url, data=credentials["payload"])
             resp.raise_for_status()

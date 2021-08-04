@@ -1,4 +1,5 @@
 import json
+import typing as t
 
 import requests
 
@@ -19,11 +20,11 @@ class ConfigurationException(Exception):
     pass
 
 
-def generate_record_uid(scheme_account_id):
+def generate_record_uid(scheme_account_id: int) -> str:
     return hash_ids.encode(scheme_account_id)
 
 
-def decode_record_uid(record_uid):
+def decode_record_uid(record_uid: str) -> int:
     return hash_ids.decode(record_uid)[0]
 
 
@@ -95,7 +96,7 @@ class Configuration:
     SECURITY_ERROR_MESSAGE = "Error retrieving security credentials for this request."
     UNKNOWN_ERROR = "An unexpected problem has occurred obtaining secrets, please investigate"
 
-    def __init__(self, scheme_slug, handler_type, vault_url, vault_token, config_service_url):
+    def __init__(self, scheme_slug: str, handler_type: int, vault_url: str, vault_token: str, config_service_url: str) -> None:
         """
         :param scheme_slug: merchant identifier.
         :param handler_type: Int. A choice from Configuration.HANDLER_TYPE_CHOICES.
@@ -114,8 +115,8 @@ class Configuration:
     def handler_type_as_str(cls, handler_type: int) -> str:
         return cls.HANDLER_TYPE_CHOICES[handler_type][1].upper()
 
-    def _get_config_data(self, config_service_url):
-        params = {"merchant_id": self.scheme_slug, "handler_type": self.handler_type[0]}
+    def _get_config_data(self, config_service_url: str) -> t.Any:
+        params: t.Dict[str, t.Union[str,int]] = {"merchant_id": self.scheme_slug, "handler_type": self.handler_type[0]}
 
         try:
             get_config_service_url = config_service_url + "/configuration"
@@ -126,7 +127,7 @@ class Configuration:
 
         return resp.json()
 
-    def _process_config_data(self):
+    def _process_config_data(self) -> None:
         try:
             self.merchant_url = self.data["merchant_url"]
             self.integration_service = self.INTEGRATION_CHOICES[self.data["integration_service"]][1].upper()
@@ -149,7 +150,7 @@ class Configuration:
         wait=wait_exponential(multiplier=1, min=3, max=12),
         reraise=True,
     )
-    def get_security_credentials(self, key_items):
+    def get_security_credentials(self, key_items: t.List[dict]) -> t.List[dict]:
         """
         Retrieves security credential values from key storage vault.
         :param key_items: list of dicts {'type': e.g 'bink_public_key', 'storage_key': auto-generated hash from helios}

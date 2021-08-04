@@ -1,5 +1,6 @@
 import base64
 import json
+import typing as t
 
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA as CRYPTO_RSA
@@ -14,14 +15,14 @@ class RSA(BaseSecurity):
     Generate and verify requests with an RSA signature.
     """
 
-    def encode(self, json_data):
+    def encode(self, json_data: str, *args: t.Any, **kwargs: t.Any) -> t.Dict[str, t.Any]:  # type: ignore
         """
         :param json_data: json string of payload
         :return: dict of parameters to be unpacked for session.post()
         """
         json_data_with_timestamp, timestamp = self._add_timestamp(json_data)
 
-        key = CRYPTO_RSA.importKey(self._get_key("bink_private_key", self.credentials["outbound"]["credentials"]))
+        key = CRYPTO_RSA.importKey(self._get_key("bink_private_key", t.cast(t.Dict[str, t.Any], self.credentials)["outbound"]["credentials"]))
         digest = SHA256.new(json_data_with_timestamp.encode("utf8"))
         signer = pkcs1_15.new(key)
         signature = base64.b64encode(signer.sign(digest)).decode("utf8")
@@ -32,7 +33,7 @@ class RSA(BaseSecurity):
         }
         return encoded_request
 
-    def decode(self, headers, json_data):
+    def decode(self, headers: t.Dict[str, str], json_data: str) -> str:  # type: ignore
         """
         :param headers: Request headers.
 
@@ -57,7 +58,7 @@ class RSA(BaseSecurity):
         self._validate_timestamp(timestamp)
 
         json_data_with_timestamp = "{}{}".format(json_data, timestamp)
-        key = CRYPTO_RSA.importKey(self._get_key("merchant_public_key", self.credentials["inbound"]["credentials"]))
+        key = CRYPTO_RSA.importKey(self._get_key("merchant_public_key", t.cast(t.Dict[str, t.Any], self.credentials)["inbound"]["credentials"]))
 
         digest = SHA256.new(json_data_with_timestamp.encode("utf8"))
         signer = pkcs1_15.new(key)
