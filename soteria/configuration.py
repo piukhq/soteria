@@ -96,7 +96,9 @@ class Configuration:
     SECURITY_ERROR_MESSAGE = "Error retrieving security credentials for this request."
     UNKNOWN_ERROR = "An unexpected problem has occurred obtaining secrets, please investigate"
 
-    def __init__(self, scheme_slug: str, handler_type: int, vault_url: str, vault_token: str, config_service_url: str) -> None:
+    def __init__(
+        self, scheme_slug: str, handler_type: int, vault_url: str, vault_token: str, config_service_url: str
+    ) -> None:
         """
         :param scheme_slug: merchant identifier.
         :param handler_type: Int. A choice from Configuration.HANDLER_TYPE_CHOICES.
@@ -116,7 +118,7 @@ class Configuration:
         return cls.HANDLER_TYPE_CHOICES[handler_type][1].upper()
 
     def _get_config_data(self, config_service_url: str) -> t.Any:
-        params: t.Dict[str, t.Union[str,int]] = {"merchant_id": self.scheme_slug, "handler_type": self.handler_type[0]}
+        params: t.Dict[str, t.Union[str, int]] = {"merchant_id": self.scheme_slug, "handler_type": self.handler_type[0]}
 
         try:
             get_config_service_url = config_service_url + "/configuration"

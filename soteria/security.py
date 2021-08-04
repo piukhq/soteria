@@ -33,7 +33,9 @@ def get_security_agent(security_type: int, *args: t.Any, **kwargs: t.Any) -> t.A
     return agent_instance
 
 
-def authorise(handler_type: int, request: t.Any, vault_url: str, vault_token: str, config_service_url: str) -> t.Callable:
+def authorise(
+    handler_type: int, request: t.Any, vault_url: str, vault_token: str, config_service_url: str
+) -> t.Callable:
     """
     Decorator function for validation of requests from merchant APIs. Should be used on all callback views.
     Requires scheme slug and handler type to retrieve configuration details on which security type to use.

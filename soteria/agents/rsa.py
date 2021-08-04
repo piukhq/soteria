@@ -22,7 +22,9 @@ class RSA(BaseSecurity):
         """
         json_data_with_timestamp, timestamp = self._add_timestamp(json_data)
 
-        key = CRYPTO_RSA.importKey(self._get_key("bink_private_key", t.cast(t.Dict[str, t.Any], self.credentials)["outbound"]["credentials"]))
+        key = CRYPTO_RSA.importKey(
+            self._get_key("bink_private_key", t.cast(t.Dict[str, t.Any], self.credentials)["outbound"]["credentials"])
+        )
         digest = SHA256.new(json_data_with_timestamp.encode("utf8"))
         signer = pkcs1_15.new(key)
         signature = base64.b64encode(signer.sign(digest)).decode("utf8")
@@ -58,7 +60,9 @@ class RSA(BaseSecurity):
         self._validate_timestamp(timestamp)
 
         json_data_with_timestamp = "{}{}".format(json_data, timestamp)
-        key = CRYPTO_RSA.importKey(self._get_key("merchant_public_key", t.cast(t.Dict[str, t.Any], self.credentials)["inbound"]["credentials"]))
+        key = CRYPTO_RSA.importKey(
+            self._get_key("merchant_public_key", t.cast(t.Dict[str, t.Any], self.credentials)["inbound"]["credentials"])
+        )
 
         digest = SHA256.new(json_data_with_timestamp.encode("utf8"))
         signer = pkcs1_15.new(key)
