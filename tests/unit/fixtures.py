@@ -83,40 +83,40 @@ TEST_COMPOUND_KEY = {
 
 
 TEST_CREDENTIALS = {
-        'outbound': {
-            'service': 0,
-            'credentials': [
-                {
-                    'storage_key': 'test_storage_key1',
-                    'value': TEST_COMPOUND_KEY,
-                    'credential_type': 'compound_key'
-                },
-                {
-                    'storage_key': 'test_storage_key2',
-                    'value': TEST_PRIVATE_KEY,
-                    'credential_type': 'bink_private_key'
-                }
-            ]
-        },
-        'inbound': {
-            'service': 0,
-            'credentials': [{
-                'storage_key': 'test_storage_key3',
-                'value': TEST_PUBLIC_KEY,
-                'credential_type': 'merchant_public_key'}]
-        }
+    'outbound': {
+        'service': 0,
+        'credentials': [
+            {
+                'storage_key': 'test_storage_key1',
+                'value': TEST_COMPOUND_KEY,
+                'credential_type': 'compound_key'
+            },
+            {
+                'storage_key': 'test_storage_key2',
+                'value': TEST_PRIVATE_KEY,
+                'credential_type': 'bink_private_key'
+            }
+        ]
+    },
+    'inbound': {
+        'service': 0,
+        'credentials': [{
+            'storage_key': 'test_storage_key3',
+            'value': TEST_PUBLIC_KEY,
+            'credential_type': 'merchant_public_key'}]
+    }
 }
 
 
 EMPTY_CREDENTIALS = {
-        'outbound': {
-            'service': 0,
-            'credentials': []
-        },
-        'inbound': {
-            'service': 0,
-            'credentials': []
-        }
+    'outbound': {
+        'service': 0,
+        'credentials': []
+    },
+    'inbound': {
+        'service': 0,
+        'credentials': []
+    }
 }
 
 
