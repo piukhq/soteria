@@ -1,39 +1,54 @@
 stages:
-  - tests
+  - test
   - build
 
 default:
-  image: binkhq/python:3.9
+  image: ghcr.io/binkhq/python:3.9
 
-tests:
-  stage: tests
-  before_script:
-    - pip install --upgrade pip pipenv
-    - pipenv install --dev --system --deploy --ignore-pipfile
-  script:
-    - pytest tests/unit --cov=soteria
 
-complexity:
-  stage: tests
+test:style: &test
+  stage: test
   before_script:
-    - pip install xenon
+    - poetry install
   script:
-    - xenon --max-average A --max-modules B --max-absolute B .
+    - poetry run flake8
+    - poetry run black --line-length 120 --check .
+    - poetry run isort --check --line-length 120 --profile black .
 
-style:
-  stage: tests
-  before_script:
-    - pip install flake8
+
+test:complexity:
+  <<: *test
   script:
-    - flake8
+    - poetry run xenon --no-assert --max-average A --max-modules B --max-absolute B .
+
+
+test:type-check:
+  <<: *test
+  script:
+    - poetry run mypy soteria
+
+
+test:pytest:
+  <<: *test
+  script:
+    - poetry run pytest --verbose --cov=soteria --cov-report=xml --junitxml=report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+      cobertura: coverage.xml
+
 
 build:
   stage: build
-  image: binkhq/python:3.7
+  before_script:
+    - poetry config repositories.gitlab https://git.bink.com/api/v4/projects/${CI_PROJECT_ID}/packages/pypi
+    - poetry config http-basic.gitlab gitlab-ci-token ${CI_JOB_TOKEN}
+    - PIPX_HOME=/usr/local/lib/pipx PIPX_BIN_DIR=/usr/local/bin pipx inject poetry poetry-dynamic-versioning
+    - apt-get update
+    - apt-get install -y git
   script:
-    - pip install twine
-    - python setup.py sdist bdist
-    - twine check dist/*
-    - twine upload --non-interactive --disable-progress-bar --repository-url https://pypi.tools.bink.sh/simple/ dist/*
+    - poetry build
+    - poetry publish -r gitlab
   only:
     - tags

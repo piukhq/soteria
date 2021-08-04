@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from pgpy import PGPKey, PGPUID, PGPMessage
-from pgpy.constants import PubKeyAlgorithm, KeyFlags, HashAlgorithm, SymmetricKeyAlgorithm, CompressionAlgorithm
+from pgpy import PGPUID, PGPKey, PGPMessage
+from pgpy.constants import CompressionAlgorithm, HashAlgorithm, KeyFlags, PubKeyAlgorithm, SymmetricKeyAlgorithm
 
 from soteria.encryption import PGP
 
