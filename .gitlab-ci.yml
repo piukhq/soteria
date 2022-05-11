@@ -3,7 +3,7 @@ stages:
   - build
 
 default:
-  image: ghcr.io/binkhq/python:3.9
+  image: ghcr.io/binkhq/python:3.10
 
 
 test:style: &test
