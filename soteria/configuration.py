@@ -167,7 +167,8 @@ class Configuration:
         client = SecretClient(vault_url=self.vault_url, credential=kv_credential)
         try:
             for key_item in key_items:
-                stored_value = json.loads(client.get_secret(key_item["storage_key"]).value)
+                storage_key = client.get_secret(key_item["storage_key"]).value
+                stored_value = json.loads(storage_key)
                 stored_dict = stored_value["data"]
 
                 # Stores the value mapped to the 'value' key of the stored data.
