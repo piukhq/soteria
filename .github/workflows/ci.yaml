@@ -40,9 +40,8 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: "3.9"
-      - run: pip install poetry
+      - run: pip install poetry poetry-dynamic-versioning
       - run: poetry config repositories.pypicloud https://pypi.uksouth.bink.sh/simple
       - run: poetry config http-basic.pypicloud c02bed7a-4224-4fb4-82ad-17499e4d0e4a ${{ secrets.PYPICLOUD_PASSWORD }}
-      - run: PIPX_HOME=/usr/local/lib/pipx PIPX_BIN_DIR=/usr/local/bin pipx inject poetry poetry-dynamic-versioning
       - run: poetry build
       - run: poetry publish -r pypicloud
