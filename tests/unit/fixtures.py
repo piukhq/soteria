@@ -110,7 +110,6 @@ MOCK_CONFIG_JSON = {
     "merchant_id": "test-slug",
     "merchant_url": "test-request-link",
     "handler_type": Configuration.JOIN_HANDLER,
-    "integration_service": Configuration.SYNC_INTEGRATION,
     "callback_url": "test-callback-link",
     "retry_limit": 1,
     "log_level": 1,

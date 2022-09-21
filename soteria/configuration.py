@@ -37,7 +37,6 @@ class Configuration:
     - handler_type: join, update.
     - merchant_url: url of merchant endpoint.
     - callback_url: Endpoint url for merchant to call for response (Async processes only)
-    - integration_service: sync or async process.
     - security_credentials: credentials required for dealing with security e.g public/private keys.
     - retry_limit: number of times to retry on failed request.
     - log_level: level of logging to record e.g DEBUG for all, WARNING for warning logs and above.
@@ -57,14 +56,6 @@ class Configuration:
         (TRANSACTION_MATCHING, "Transaction Matching"),
         (CHECK_MEMBERSHIP_HANDLER, "Check Membership"),
         (TRANSACTION_HISTORY_HANDLER, "Transaction History"),
-    )
-
-    SYNC_INTEGRATION = 0
-    ASYNC_INTEGRATION = 1
-
-    INTEGRATION_CHOICES = (
-        (SYNC_INTEGRATION, "Sync"),
-        (ASYNC_INTEGRATION, "Async"),
     )
 
     RSA_SECURITY = 0
@@ -132,7 +123,6 @@ class Configuration:
     def _process_config_data(self) -> None:
         try:
             self.merchant_url = self.data["merchant_url"]
-            self.integration_service = self.INTEGRATION_CHOICES[self.data["integration_service"]][1].upper()
             self.retry_limit = self.data["retry_limit"]
             self.log_level = self.LOG_LEVEL_CHOICES[self.data["log_level"]][1].upper()
             self.callback_url = self.data["callback_url"]
