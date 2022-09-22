@@ -88,7 +88,13 @@ class Configuration:
     UNKNOWN_ERROR = "An unexpected problem has occurred obtaining secrets, please investigate"
 
     def __init__(
-        self, scheme_slug: str, handler_type: int, vault_url: str, vault_token: str, config_service_url: str, azure_tenant_id: str
+        self,
+        scheme_slug: str,
+        handler_type: int,
+        vault_url: str,
+        vault_token: str,
+        config_service_url: str,
+        azure_tenant_id: str,
     ) -> None:
         """
         :param scheme_slug: merchant identifier.
@@ -154,7 +160,7 @@ class Configuration:
             exclude_shared_token_cache_credential=True,
             exclude_visual_studio_code_credential=True,
             exclude_interactive_browser_credential=True,
-            additionally_allowed_tenants=[self.azure_tenant_id]
+            additionally_allowed_tenants=[self.azure_tenant_id],
         )
         client = SecretClient(vault_url=self.vault_url, credential=kv_credential)
         try:
