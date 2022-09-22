@@ -34,7 +34,7 @@ def get_security_agent(security_type: int, *args: t.Any, **kwargs: t.Any) -> t.A
 
 
 def authorise(
-    handler_type: int, request: t.Any, vault_url: str, vault_token: str, config_service_url: str
+    handler_type: int, request: t.Any, vault_url: str, vault_token: str, config_service_url: str, azure_tenant_id: str
 ) -> t.Callable:
     """
     Decorator function for validation of requests from merchant APIs. Should be used on all callback views.
@@ -50,7 +50,9 @@ def authorise(
 
     def decorator(fn: t.Callable) -> t.Callable:
         def wrapper(*args: t.Any, **kwargs: t.Any) -> t.Any:
-            config = Configuration(kwargs["scheme_slug"], int(handler_type), vault_url, vault_token, config_service_url)
+            config = Configuration(
+                kwargs["scheme_slug"], int(handler_type), vault_url, vault_token, config_service_url, azure_tenant_id
+            )
             security_agent = get_security_agent(
                 config.security_credentials["inbound"]["service"], config.security_credentials
             )

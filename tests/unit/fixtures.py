@@ -102,7 +102,14 @@ TEST_CREDENTIALS = {
 EMPTY_CREDENTIALS = {"outbound": {"service": 0, "credentials": []}, "inbound": {"service": 0, "credentials": []}}
 
 
-CONFIG_CLASS_ARGS = ["test-slug", Configuration.JOIN_HANDLER, "vault_url", "vault_token", "config_service_url"]
+CONFIG_CLASS_ARGS = [
+    "test-slug",
+    Configuration.JOIN_HANDLER,
+    "vault_url",
+    "vault_token",
+    "config_service_url",
+    "a6e2367a-92ea-4e5a-b565-723830bcc095",
+]
 
 
 MOCK_CONFIG_JSON = {

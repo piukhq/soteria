@@ -34,7 +34,9 @@ class TestSecurity(TestCase):
         mock_requests_retry_session.return_value.get.return_value.json.return_value = mock_config
         mock_get_security_credentials.return_value = fixtures.MOCK_VAULT_RESPONSE
 
-        @authorise(Configuration.JOIN_HANDLER, fixtures.MockRequest, "vault_url", "vault_token", "config_url")
+        @authorise(
+            Configuration.JOIN_HANDLER, fixtures.MockRequest, "vault_url", "vault_token", "config_url", "tenant_id"
+        )
         def accept_request(scheme_slug, data, config):
             return data, scheme_slug, config
 
