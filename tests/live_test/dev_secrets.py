@@ -16,13 +16,10 @@ def get_secret_from_dev_key_vault():
     VAULT_URL = "https://bink-uksouth-dev-com.vault.azure.net/"
     VAULT_TOKEN = ""
     EUROPA_URL = "http://localhost:9000/config_service"
+    AZURE_AAD_TENANT_ID = "a6e2367a-92ea-4e5a-b565-723830bcc095"
 
     config = Configuration(
-        provider_slug,
-        Configuration.JOIN_HANDLER,
-        VAULT_URL,
-        VAULT_TOKEN,
-        EUROPA_URL,
+        provider_slug, Configuration.JOIN_HANDLER, VAULT_URL, VAULT_TOKEN, EUROPA_URL, AZURE_AAD_TENANT_ID
     )
 
     return config
