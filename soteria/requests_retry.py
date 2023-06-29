@@ -2,15 +2,15 @@ import typing as t
 
 import requests
 
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter, Retry
+from typing import Optional
 
 
 def requests_retry_session(
     retries: int = 3,
     backoff_factor: float = 0.3,
     status_forcelist: t.Tuple = (500, 502, 504),
-    session: requests.Session = None,
+    session: Optional[requests.Session] = None,
 ) -> requests.Session:
     """
     Create a requests session with the given retry policy.
