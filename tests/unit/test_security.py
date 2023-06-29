@@ -23,7 +23,6 @@ class TestSecurity(TestCase):
     @mock.patch.object(Configuration, "get_security_credentials")
     @mock.patch("soteria.configuration.requests_retry_session")
     def test_authorise(self, mock_requests_retry_session, mock_get_security_credentials):
-
         mock_config = fixtures.MOCK_CONFIG_JSON
         mock_config["security_credentials"] = {
             "inbound": {"service": Configuration.OPEN_AUTH_SECURITY, "credentials": []},
