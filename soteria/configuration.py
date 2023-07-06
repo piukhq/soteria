@@ -48,6 +48,7 @@ class Configuration:
     TRANSACTION_MATCHING = 3
     CHECK_MEMBERSHIP_HANDLER = 4
     TRANSACTION_HISTORY_HANDLER = 5
+    REMOVED_HANDLER = 6
 
     HANDLER_TYPE_CHOICES = (
         (UPDATE_HANDLER, "Update"),
@@ -56,6 +57,7 @@ class Configuration:
         (TRANSACTION_MATCHING, "Transaction Matching"),
         (CHECK_MEMBERSHIP_HANDLER, "Check Membership"),
         (TRANSACTION_HISTORY_HANDLER, "Transaction History"),
+        (REMOVED_HANDLER, "Loyalty Card Removed"),
     )
 
     RSA_SECURITY = 0
